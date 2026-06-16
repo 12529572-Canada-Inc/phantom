@@ -1,0 +1,8 @@
+{
+  "extends": "../../packages/typescript-config/base.json",
+  "compilerOptions": {
+    "jsx": "react-native",
+    "strict": true
+  },
+  "include": ["app", "components"]
+}

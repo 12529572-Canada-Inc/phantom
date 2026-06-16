@@ -1,0 +1,19 @@
+{
+  "expo": {
+    "name": "Phantom",
+    "slug": "phantom",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "scheme": "phantom",
+    "platforms": ["ios", "android"],
+    "plugins": [
+      "expo-router",
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "Allow Phantom to use your location to show nearby zones."
+        }
+      ]
+    ]
+  }
+}
