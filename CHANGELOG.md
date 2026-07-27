@@ -14,6 +14,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added this changelog to track user-visible, architectural, security,
   deployment, and developer-tooling changes.
 
+### Changed
+
+- Clarified the baseline public-read policies and distinguished recommended
+  local checks from the checks currently enforced by CI.
+- Updated CI and release workflows to use Node 24–based action runtimes and the
+  root `packageManager` field as the single source for the pnpm version.
+- Added the missing shared ESLint configuration and included the API in the
+  workspace type-check task so CI validates both applications.
+
 ## [0.1.0] - 2026-07-27
 
 ### Added

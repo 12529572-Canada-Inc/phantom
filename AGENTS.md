@@ -95,8 +95,11 @@ required tool or service was unavailable.
   added. Make migrations work from an empty database as well as on the current
   schema.
 - Enable RLS on every client-accessible table and add least-privilege policies
-  for each supported operation. Public reads require an explicit product
-  decision; do not infer them from an early scaffold.
+  for each supported operation. The baseline `00001_init.sql` migration
+  currently permits reads of zones, teams, players, and capture events with
+  `using (true)` policies. Treat that as the current product behavior, not a
+  precedent: future public access and any tightening of these policies require
+  an explicit product decision.
 - Use PostGIS geography types and indexed database predicates for proximity
   checks. Do not trust client-computed capture eligibility.
 - Include migration, rollback, data-retention, and policy implications in the
@@ -113,8 +116,9 @@ required tool or service was unavailable.
   including denied and unavailable location access where applicable.
 - Migration and RLS changes must be exercised against a fresh local Supabase
   database and with at least two users to catch cross-user access.
-- Until dedicated test scripts exist, the minimum automated gate is
-  `pnpm lint`, `pnpm type-check`, and `pnpm build`.
+- Until dedicated test scripts exist, the minimum recommended local checks are
+  `pnpm lint`, `pnpm type-check`, and `pnpm build`. Current CI automates linting
+  and type checking; run the build locally until the workflow expands.
 
 ## Commits, Pull Requests, and Changelog
 
