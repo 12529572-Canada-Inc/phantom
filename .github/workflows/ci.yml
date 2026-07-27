@@ -19,3 +19,23 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm lint
       - run: pnpm type-check
+
+  api-container:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Build API image
+        run: docker build --file apps/api/Dockerfile --tag phantom-api:ci .
+      - name: Smoke test API image
+        run: |
+          container_id="$(docker run --detach --publish 3001:3001 phantom-api:ci)"
+          trap 'docker logs "$container_id"; docker rm --force "$container_id"' EXIT
+
+          for attempt in {1..30}; do
+            if curl --fail --silent http://127.0.0.1:3001/health | grep --quiet '"status":"ok"'; then
+              exit 0
+            fi
+            sleep 1
+          done
+
+          exit 1

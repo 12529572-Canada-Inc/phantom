@@ -4,6 +4,12 @@
   "scripts": {
     "build": "turbo build",
     "dev": "turbo dev",
+    "docker:build": "docker compose build api",
+    "docker:start": "./scripts/manage_setup.sh start",
+    "docker:stop": "./scripts/manage_setup.sh stop",
+    "docker:logs": "./scripts/manage_setup.sh logs",
+    "docker:status": "./scripts/manage_setup.sh status",
+    "docker:config": "./scripts/manage_setup.sh config",
     "lint": "turbo lint",
     "type-check": "turbo type-check",
     "format": "prettier --write \"**/*.{ts,tsx,md,json}\""
@@ -12,8 +18,9 @@
     "@eslint/js": "^9.0.0",
     "eslint": "^9.0.0",
     "globals": "^15.0.0",
-    "turbo": "^2.0.0",
     "prettier": "^3.0.0",
+    "supabase": "^2.109.1",
+    "turbo": "^2.0.0",
     "typescript": "^5.4.0",
     "typescript-eslint": "^8.0.0"
   },

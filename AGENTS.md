@@ -60,6 +60,10 @@
 - `pnpm --filter @phantom/api dev` starts the API in watch mode on port `3001`
   unless `PORT` is set.
 - `pnpm build` builds all workspaces that define a build task.
+- `pnpm docker:start` starts local Supabase and the containerized API.
+- `pnpm docker:stop` removes the project Compose and Supabase containers and
+  networks while preserving local database data.
+- `pnpm docker:config` validates the Compose configuration without starting it.
 - `pnpm lint` runs workspace lint tasks.
 - `pnpm type-check` runs workspace TypeScript checks.
 - `pnpm format` writes Prettier formatting across TypeScript, TSX, Markdown,
