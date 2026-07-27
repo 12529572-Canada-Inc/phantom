@@ -4,6 +4,8 @@
   "scripts": {
     "build": "turbo build",
     "dev": "turbo dev",
+    "dev:tui": "node scripts/dev-tui/index.mjs",
+    "dev:task": "node scripts/dev-tui/index.mjs",
     "docker:build": "docker compose build api",
     "docker:start": "./scripts/manage_setup.sh start",
     "docker:stop": "./scripts/manage_setup.sh stop",
@@ -11,8 +13,9 @@
     "docker:status": "./scripts/manage_setup.sh status",
     "docker:config": "./scripts/manage_setup.sh config",
     "lint": "turbo lint",
+    "test": "node --test scripts/dev-tui/*.test.mjs",
     "type-check": "turbo type-check",
-    "format": "prettier --write \"**/*.{ts,tsx,md,json}\""
+    "format": "prettier --write \"**/*.{ts,tsx,md,json,mjs}\""
   },
   "devDependencies": {
     "@eslint/js": "^9.0.0",
