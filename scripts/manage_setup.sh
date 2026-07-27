@@ -32,7 +32,12 @@ stop() {
   compose down --remove-orphans || stop_status=$?
 
   if pnpm exec supabase status >/dev/null 2>&1; then
-    pnpm exec supabase stop || stop_status=$?
+    pnpm exec supabase stop || {
+      supabase_stop_status=$?
+      if [ "$stop_status" -eq 0 ]; then
+        stop_status=$supabase_stop_status
+      fi
+    }
   fi
 
   return "$stop_status"

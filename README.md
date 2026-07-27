@@ -58,8 +58,9 @@ Other commands:
 | `pnpm docker:status` | Show API and local Supabase status            |
 | `pnpm docker:config` | Validate the Compose configuration            |
 
-`API_PORT` changes the published host port. The container always listens on
-port `3001`. The API reaches host-side Supabase at
+`API_PORT` changes the host port published by Compose, which sets the
+container's `PORT` to `3001`. When running the image directly, `PORT` defaults
+to `3001` and may be overridden. The API reaches host-side Supabase at
 `http://host.docker.internal:54321`; Compose adds the Linux host-gateway
 mapping. `SUPABASE_URL`, `SUPABASE_ANON_KEY`, and
 `SUPABASE_SERVICE_ROLE_KEY` may be supplied at runtime through the shell or an
