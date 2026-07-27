@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Added a non-root, multi-stage API image, a one-command Docker and local
+  Supabase development stack, container health checks, and CI smoke testing.
+- Documented Docker environment handling and Expo API URLs for simulators,
+  emulators, and physical devices.
 - Added canonical repository guidance for coding agents in `AGENTS.md` and a
   thin Claude Code workflow layer in `CLAUDE.md`.
 - Added this changelog to track user-visible, architectural, security,
