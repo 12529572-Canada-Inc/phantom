@@ -35,8 +35,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Fixed the initial Supabase migration so it applies from an empty database,
-  grants only the API-role privileges required by its RLS policies, and indexes
-  zone geography for proximity queries. ([#1](https://github.com/12529572-Canada-Inc/phantom/issues/1))
+  installs required extensions outside the public schema, grants only the
+  API-role privileges required by its RLS policies, and indexes zone geography
+  for proximity queries. ([#1](https://github.com/12529572-Canada-Inc/phantom/issues/1))
 
 ## [0.1.0] - 2026-07-27
 

@@ -2,7 +2,7 @@ begin;
 
 create extension if not exists pgtap with schema extensions;
 
-select plan(14);
+select plan(16);
 
 select ok(
   exists (
@@ -11,6 +11,28 @@ select ok(
     where extname = 'postgis'
   ),
   'PostGIS is enabled.'
+);
+
+select is(
+  (
+    select namespace.nspname
+    from pg_extension as extension
+    join pg_namespace as namespace on namespace.oid = extension.extnamespace
+    where extension.extname = 'pgcrypto'
+  ),
+  'extensions',
+  'pgcrypto is installed in the extensions schema.'
+);
+
+select is(
+  (
+    select namespace.nspname
+    from pg_extension as extension
+    join pg_namespace as namespace on namespace.oid = extension.extnamespace
+    where extension.extname = 'postgis'
+  ),
+  'extensions',
+  'PostGIS is installed in the extensions schema.'
 );
 
 select is(

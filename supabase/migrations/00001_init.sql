@@ -1,5 +1,6 @@
--- Enable PostGIS for location queries
-create extension if not exists postgis;
+-- Enable required extensions outside the public schema
+create extension if not exists pgcrypto with schema extensions;
+create extension if not exists postgis with schema extensions;
 
 -- Teams table
 create table public.teams (
