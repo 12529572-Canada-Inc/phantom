@@ -56,6 +56,9 @@
 - `pnpm install` installs all workspace dependencies. CI uses
   `pnpm install --frozen-lockfile`; keep the lockfile committed and current.
 - `pnpm dev` starts persistent development tasks through Turbo.
+- `pnpm dev:tui` opens the interactive development task menu.
+- `pnpm dev:task -- --list` lists the menu's non-interactive task IDs; invoke
+  one with `pnpm dev:task -- <task-id>` and use `--dry-run` to inspect it.
 - `pnpm --filter @phantom/mobile dev` starts Expo for the mobile client.
 - `pnpm --filter @phantom/api dev` starts the API in watch mode on port `3001`
   unless `PORT` is set.
@@ -66,8 +69,9 @@
 - `pnpm docker:config` validates the Compose configuration without starting it.
 - `pnpm lint` runs workspace lint tasks.
 - `pnpm type-check` runs workspace TypeScript checks.
-- `pnpm format` writes Prettier formatting across TypeScript, TSX, Markdown,
-  and JSON files. Review its diff before committing.
+- `pnpm test` runs the development task runner unit tests.
+- `pnpm format` writes Prettier formatting across TypeScript, TSX, JavaScript
+  modules, Markdown, and JSON files. Review its diff before committing.
 
 Run the narrowest useful command while iterating, then run the relevant
 repository-level checks before committing. Do not claim a check passed if the

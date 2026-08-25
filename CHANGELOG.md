@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Added an interactive development task menu with headless task IDs,
+  prerequisite checks, safe local service and database workflows, repository
+  quality checks, typed reset confirmation, and process-runner unit tests.
 - Added a non-root, multi-stage API image, a one-command Docker and local
   Supabase development stack, container health checks, and CI smoke testing.
 - Documented Docker environment handling and Expo API URLs for simulators,

@@ -20,8 +20,31 @@
 
 ```bash
 pnpm install
-pnpm dev
+pnpm dev:tui
 ```
+
+The interactive development task menu uses arrow keys (or `j`/`k`) and Enter,
+with `q`, Escape, or `Ctrl+C` as clear exit paths. It checks prerequisites,
+manages the local stack, shows safe endpoints, launches Expo with device-specific
+API guidance, manages the local database, and runs repository checks.
+
+Every menu action also has a non-interactive task ID:
+
+```bash
+pnpm dev:task -- --list
+pnpm dev:task -- environment:check
+pnpm dev:task -- quality:pre-pr
+pnpm dev:task -- database:reset --dry-run
+```
+
+Commands stream their output and return the child command's exit code. The
+local database reset requires an interactive typed confirmation and refuses to
+run without the Supabase CLI's `--local` guard. Arguments are passed directly
+to child processes without shell interpolation. Environment checks report only
+whether sensitive values are configured; they never print their contents.
+
+Run `pnpm dev` directly when you want Turbo's persistent development tasks
+without the menu.
 
 ## Docker development
 
@@ -57,6 +80,9 @@ Other commands:
 | `pnpm docker:logs`   | Follow API container logs                     |
 | `pnpm docker:status` | Show API and local Supabase status            |
 | `pnpm docker:config` | Validate the Compose configuration            |
+
+The menu delegates Docker lifecycle work to these commands rather than
+duplicating Compose orchestration.
 
 `API_PORT` changes the host port published by Compose, which sets the
 container's `PORT` to `3001`. When running the image directly, `PORT` defaults
