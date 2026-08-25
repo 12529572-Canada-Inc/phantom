@@ -12,8 +12,9 @@ import {
   runSequence,
 } from './process-runner.mjs'
 
-const printDatabaseEndpoints = () => {
+const printDatabaseEndpoints = (cwd) => {
   const status = spawnSync('pnpm', ['exec', 'supabase', 'status'], {
+    cwd,
     shell: false,
     stdio: 'ignore',
   })
@@ -57,7 +58,7 @@ const runAction = async (task, options) => {
         )
         return 0
       }
-      return printDatabaseEndpoints()
+      return printDatabaseEndpoints(options.cwd)
     case 'sequence': {
       if (options.dryRun) {
         for (const step of task.action.steps) {
