@@ -17,7 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   handling, accessible loading/error states, and sign-out. ([#3](https://github.com/12529572-Canada-Inc/phantom/issues/3))
 - Added Railway Infrastructure as Code and a production API deployment runbook
   covering Supabase secret handling and `/health` verification. ([#2](https://github.com/12529572-Canada-Inc/phantom/issues/2))
-- Added an interactive development task menu with headless task IDs,
+- Added a compact category-first development task menu with headless task IDs,
   prerequisite checks, safe local service and database workflows, repository
   quality checks, typed reset confirmation, and process-runner unit tests.
 - Added a non-root, multi-stage API image, a one-command Docker and local

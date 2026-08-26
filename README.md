@@ -23,10 +23,12 @@ pnpm install
 pnpm dev:tui
 ```
 
-The interactive development task menu uses arrow keys (or `j`/`k`) and Enter,
-with `q`, Escape, or `Ctrl+C` as clear exit paths. It checks prerequisites,
-manages the local stack, shows safe endpoints, launches Expo with device-specific
-API guidance, manages the local database, and runs repository checks.
+The compact interactive development menu opens with task categories. Use arrow
+keys (or `j`/`k`) and Enter to open a category and run a task, then use the left
+arrow or `b` to return. Use `q`, Escape, or `Ctrl+C` to exit. The menu checks
+prerequisites, manages the local stack, shows safe endpoints, launches Expo with
+device-specific API guidance, manages the local database, and runs repository
+checks.
 
 Every menu action also has a non-interactive task ID:
 
