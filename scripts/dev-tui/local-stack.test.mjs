@@ -4,6 +4,7 @@ import test from 'node:test'
 import {
   assertSafeControlEnvironment,
   createNukeAndPavePlan,
+  findSupabasePortConflicts,
   inspectLocalStackTarget,
   isLocalDockerEndpoint,
   runNukeAndPave,
@@ -108,6 +109,20 @@ test('only local Docker socket endpoints are accepted', () => {
   assert.equal(isLocalDockerEndpoint(''), false)
 })
 
+test('port inspection distinguishes Phantom from unrelated containers', () => {
+  const bindings = [
+    'supabase_db_phantom|0.0.0.0:55322->5432/tcp, [::]:55322->5432/tcp|phantom',
+    'another-db|0.0.0.0:55323->5432/tcp, [::]:55323->5432/tcp|',
+    'supabase_fake_phantom|0.0.0.0:55324->8025/tcp|',
+    'unpublished-service|55325/tcp|',
+  ].join('\n')
+
+  assert.deepEqual(findSupabasePortConflicts(bindings), [
+    { container: 'another-db', port: 55323 },
+    { container: 'supabase_fake_phantom', port: 55324 },
+  ])
+})
+
 test('preflight refuses a remote Docker endpoint before inspecting resources', async () => {
   const calls = []
   const run = async (step) => {
@@ -140,12 +155,52 @@ test('preflight refuses Compose resources owned by another checkout', async () =
   )
 })
 
+test('preflight accepts Phantom Supabase containers without Compose config labels', async () => {
+  const responses = [
+    'unix:///var/run/docker.sock\n',
+    'api\n',
+    'supabase_db_phantom||phantom\n',
+    'supabase_db_phantom|0.0.0.0:55322->5432/tcp|phantom\n',
+  ]
+  const run = async () => ({
+    exitCode: 0,
+    stdout: responses.shift(),
+    stderr: '',
+  })
+
+  assert.equal(
+    await inspectLocalStackTarget({ cwd: process.cwd(), run }),
+    process.cwd(),
+  )
+})
+
+test('preflight refuses an unrelated container on a Phantom port', async () => {
+  const responses = [
+    'unix:///var/run/docker.sock\n',
+    'api\n',
+    '',
+    'another-db|0.0.0.0:55322->5432/tcp\n',
+  ]
+  const run = async () => ({
+    exitCode: 0,
+    stdout: responses.shift(),
+    stderr: '',
+  })
+
+  await assert.rejects(
+    inspectLocalStackTarget({ cwd: process.cwd(), run }),
+    /55322.*another-db/,
+  )
+})
+
 test('nuke and pave stops immediately when a destructive step fails', async () => {
   const destructiveSteps = []
   let inspection = 0
   const run = async (step) => {
-    if (inspection < 3) {
-      const stdout = ['unix:///var/run/docker.sock\n', 'api\n', ''][inspection]
+    if (inspection < 4) {
+      const stdout = ['unix:///var/run/docker.sock\n', 'api\n', '', ''][
+        inspection
+      ]
       inspection += 1
       return { exitCode: 0, stdout, stderr: '' }
     }

@@ -9,6 +9,28 @@ const readKey = () =>
     process.stdin.once('keypress', (_value, key) => resolve(key))
   })
 
+export const waitForReturn = (input) => {
+  if (input.readableEnded || input.destroyed) {
+    return Promise.resolve(false)
+  }
+
+  return new Promise((resolve) => {
+    const finish = (canContinue) => {
+      input.removeListener('data', onData)
+      input.removeListener('end', onClosed)
+      input.removeListener('close', onClosed)
+      resolve(canContinue)
+    }
+    const onData = () => finish(true)
+    const onClosed = () => finish(false)
+
+    input.once('data', onData)
+    input.once('end', onClosed)
+    input.once('close', onClosed)
+    input.resume()
+  })
+}
+
 export const createTaskGroups = (tasks) => {
   const groups = []
   const groupByName = new Map()
@@ -158,7 +180,8 @@ export const runTui = async (tasks, { cwd } = {}) => {
           prerequisites,
         })
         console.log('\nPress Enter to return to the menu.')
-        await new Promise((resolve) => process.stdin.once('data', resolve))
+        const canContinue = await waitForReturn(process.stdin)
+        if (!canContinue) return exitCode
         process.stdin.setRawMode(true)
         message =
           exitCode === 0

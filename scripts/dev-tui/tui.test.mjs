@@ -1,8 +1,14 @@
 import assert from 'node:assert/strict'
+import { EventEmitter } from 'node:events'
 import test from 'node:test'
 
 import { tasks } from './tasks.mjs'
-import { createTaskGroups, formatMenu, updateMenuState } from './tui.mjs'
+import {
+  createTaskGroups,
+  formatMenu,
+  updateMenuState,
+  waitForReturn,
+} from './tui.mjs'
 
 const availablePrerequisites = {
   docker: { available: true },
@@ -64,4 +70,23 @@ test('menu navigation opens a group, wraps tasks, and returns to categories', ()
 
   state = updateMenuState(groups, state, 'back')
   assert.deepEqual(state, { activeGroupIndex: null, selectedIndex: 1 })
+})
+
+test('return prompt resumes input paused by typed confirmation', async () => {
+  const input = new EventEmitter()
+  input.resumed = false
+  input.resume = () => {
+    input.resumed = true
+    queueMicrotask(() => input.emit('data', Buffer.from('\n')))
+  }
+
+  assert.equal(await waitForReturn(input), true)
+  assert.equal(input.resumed, true)
+})
+
+test('return prompt resolves cleanly when terminal input closes', async () => {
+  const input = new EventEmitter()
+  input.resume = () => queueMicrotask(() => input.emit('end'))
+
+  assert.equal(await waitForReturn(input), false)
 })

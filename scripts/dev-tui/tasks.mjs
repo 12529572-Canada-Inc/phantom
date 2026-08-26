@@ -1,3 +1,5 @@
+import { localDatabaseTarget, localStackTarget } from './local-config.mjs'
+
 const external = (command, args) => ({
   type: 'external',
   command,
@@ -63,8 +65,7 @@ export const tasks = Object.freeze([
     notice:
       'WARNING: This permanently deletes local Supabase data and the local Docker Compose project "phantom" (containers, volumes, and network), then rebuilds both from scratch. Source files, dependencies, environment files, hosted Supabase, and unrelated Docker projects are preserved.',
     destructive: {
-      target:
-        'local Docker Compose project "phantom" and local Supabase project "phantom"',
+      target: localStackTarget,
       confirmation: 'nuke and pave phantom',
     },
     action: { type: 'local-stack-rebuild' },
@@ -151,7 +152,7 @@ export const tasks = Object.freeze([
     description: 'Recreate only the local Phantom database from migrations.',
     requires: ['pnpm', 'supabase'],
     destructive: {
-      target: 'local Supabase project "phantom" at 127.0.0.1:54322',
+      target: localDatabaseTarget,
       confirmation: 'reset local phantom',
     },
     action: external('pnpm', ['exec', 'supabase', 'db', 'reset', '--local']),

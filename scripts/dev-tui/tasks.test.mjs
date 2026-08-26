@@ -25,7 +25,7 @@ test('database reset is fixed to the local project and requires confirmation', (
   assert.ok(reset.destructive)
   assert.equal(isLocalOnlyAction(reset), true)
   assert.deepEqual(reset.action.args.slice(-2), ['reset', '--local'])
-  assert.match(reset.destructive.target, /127\.0\.0\.1:54322/)
+  assert.match(reset.destructive.target, /127\.0\.0\.1:55322/)
   assert.equal(reset.destructive.confirmation, 'reset local phantom')
 })
 

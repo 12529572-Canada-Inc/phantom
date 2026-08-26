@@ -1,12 +1,12 @@
 import { lstatSync, readFileSync, realpathSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { localProjectId, localSupabasePorts } from './local-config.mjs'
 import { runCommand } from './process-runner.mjs'
 
 const repositoryRoot = realpathSync(
   resolve(dirname(fileURLToPath(import.meta.url)), '../..'),
 )
-const projectId = 'phantom'
 const redirectVariables = [
   'COMPOSE_FILE',
   'COMPOSE_PATH_SEPARATOR',
@@ -26,7 +26,7 @@ const composeArguments = (workspace) => [
   '--project-directory',
   workspace,
   '--project-name',
-  projectId,
+  localProjectId,
 ]
 
 export const assertSafeControlEnvironment = (environment) => {
@@ -43,6 +43,29 @@ export const assertSafeControlEnvironment = (environment) => {
 
 export const isLocalDockerEndpoint = (endpoint) =>
   /^(?:unix|npipe):\/\//.test(endpoint.trim())
+
+const isPhantomSupabaseContainer = (container, supabaseProject) =>
+  supabaseProject === localProjectId &&
+  container.startsWith('supabase_') &&
+  container.endsWith(`_${localProjectId}`)
+
+export const findSupabasePortConflicts = (containerBindings) => {
+  const conflicts = []
+
+  for (const binding of containerBindings.split(/\r?\n/).filter(Boolean)) {
+    const [container, ports, supabaseProject] = binding.split('|')
+    if (!container || ports === undefined) continue
+    if (isPhantomSupabaseContainer(container, supabaseProject)) continue
+
+    for (const port of Object.values(localSupabasePorts)) {
+      if (ports.includes(`:${port}->`)) {
+        conflicts.push({ container, port })
+      }
+    }
+  }
+
+  return conflicts
+}
 
 export const createNukeAndPavePlan = (workspaceDirectory) => {
   const workspace = resolve(workspaceDirectory)
@@ -69,7 +92,7 @@ export const createNukeAndPavePlan = (workspaceDirectory) => {
         '--workdir',
         workspace,
         '--project-id',
-        projectId,
+        localProjectId,
         '--no-backup',
       ],
     },
@@ -179,28 +202,47 @@ export const inspectLocalStackTarget = async ({
         'ps',
         '--all',
         '--filter',
-        `label=com.docker.compose.project=${projectId}`,
+        `label=com.docker.compose.project=${localProjectId}`,
         '--format',
-        '{{.ID}}|{{.Label "com.docker.compose.project.config_files"}}',
+        '{{.Names}}|{{.Label "com.docker.compose.project.config_files"}}|{{.Label "com.supabase.cli.project"}}',
       ],
     },
     { cwd: workspace, env: environment, run },
   )
   for (const resource of existingResources.split(/\r?\n/).filter(Boolean)) {
-    const separator = resource.indexOf('|')
-    const configuredFiles =
-      separator === -1
-        ? []
-        : resource
-            .slice(separator + 1)
-            .split(',')
-            .filter(Boolean)
-            .map((path) => resolve(path))
+    const [container, configuredFileList, supabaseProject] = resource.split('|')
+    if (isPhantomSupabaseContainer(container, supabaseProject)) continue
+
+    const configuredFiles = (configuredFileList ?? '')
+      .split(',')
+      .filter(Boolean)
+      .map((path) => resolve(path))
     if (configuredFiles.length !== 1 || configuredFiles[0] !== composeFile) {
       throw new Error(
         'Refusing Compose resources owned by another Compose configuration.',
       )
     }
+  }
+
+  const containerBindings = await runInspection(
+    {
+      command: 'docker',
+      args: [
+        'ps',
+        '--format',
+        '{{.Names}}|{{.Ports}}|{{.Label "com.supabase.cli.project"}}',
+      ],
+    },
+    { cwd: workspace, env: environment, run },
+  )
+  const conflicts = findSupabasePortConflicts(containerBindings)
+  if (conflicts.length > 0) {
+    const details = conflicts
+      .map(({ container, port }) => `${port} by "${container}"`)
+      .join(', ')
+    throw new Error(
+      `Refusing destructive action because Phantom ports are published by unrelated Docker containers: ${details}.`,
+    )
   }
 
   return workspace

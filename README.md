@@ -57,14 +57,16 @@ running prerequisite checks or child processes.
 Before deletion, the task refuses redirecting Docker, Compose, or Supabase
 environment variables; rejects non-local Docker endpoints; verifies the
 checked-in Compose and Supabase configuration; and refuses existing Compose
-resources owned by another checkout. It does not delete source files,
-dependencies, environment files, hosted Supabase data, Docker images, or
-unrelated Docker projects. Do not run another Phantom stack command at the
-same time. Both Compose and local Supabase identify this project as `phantom`,
-so two Phantom checkouts share those local namespaces and should not be run
-concurrently. The workflow stops after the first failed step; a failure after
-teardown can intentionally leave the stack down or partially rebuilt. Correct
-the reported problem and rerun the task to finish paving it.
+resources owned by another checkout. Phantom uses the dedicated local Supabase
+port block `55320`–`55329`; the preflight refuses to delete anything if an
+unrelated Docker container publishes one of those ports. It does not delete
+source files, dependencies, environment files, hosted Supabase data, Docker
+images, or unrelated Docker projects. Do not run another Phantom stack command
+at the same time. Both Compose and local Supabase identify this project as
+`phantom`, so two Phantom checkouts share those local namespaces and should not
+be run concurrently. The workflow stops after the first failed step; a failure
+after teardown can intentionally leave the stack down or partially rebuilt.
+Correct the reported problem and rerun the task to finish paving it.
 
 Run `pnpm dev` directly when you want Turbo's persistent development tasks
 without the menu.
@@ -88,7 +90,7 @@ pnpm docker:start
 
 The command builds the API image from the repository root, waits for its
 container health check, and publishes `GET http://localhost:3001/health`.
-Supabase Studio is available at `http://localhost:54323`. Stop all
+Supabase Studio is available at `http://localhost:55323`. Stop all
 project-owned containers and networks with:
 
 ```bash
@@ -111,7 +113,7 @@ full scope is visible in `--dry-run` output.
 `API_PORT` changes the host port published by Compose, which sets the
 container's `PORT` to `3001`. When running the image directly, `PORT` defaults
 to `3001` and may be overridden. The API reaches host-side Supabase at
-`http://host.docker.internal:54321`; Compose adds the Linux host-gateway
+`http://host.docker.internal:55321`; Compose adds the Linux host-gateway
 mapping. `SUPABASE_URL`, `SUPABASE_ANON_KEY`, and
 `SUPABASE_SERVICE_ROLE_KEY` may be supplied at runtime through the shell or an
 uncommitted `.env` file. Never commit those values. The service-role key is
@@ -150,9 +152,9 @@ Use a Supabase URL reachable from the selected runtime:
 
 | Runtime          | Local Supabase URL                  |
 | ---------------- | ----------------------------------- |
-| iOS simulator    | `http://127.0.0.1:54321`            |
-| Android emulator | `http://10.0.2.2:54321`             |
-| Physical device  | `http://<development-LAN-IP>:54321` |
+| iOS simulator    | `http://127.0.0.1:55321`            |
+| Android emulator | `http://10.0.2.2:55321`             |
+| Physical device  | `http://<development-LAN-IP>:55321` |
 
 The app persists the Supabase session in encrypted SecureStore and uses
 `phantom://auth/callback` for email-confirmation and Google OAuth callbacks.

@@ -5,6 +5,7 @@ import {
   printEnvironmentReport,
 } from './environment.mjs'
 import { confirmDestructiveAction } from './guards.mjs'
+import { localSupabaseEndpoints } from './local-config.mjs'
 import { createNukeAndPavePlan, runNukeAndPave } from './local-stack.mjs'
 import {
   formatCommand,
@@ -26,9 +27,9 @@ const printDatabaseEndpoints = (cwd) => {
   }
 
   console.log('Local Supabase is running.')
-  console.log('  API: http://127.0.0.1:54321')
-  console.log('  Studio: http://127.0.0.1:54323')
-  console.log('  Database: 127.0.0.1:54322')
+  console.log(`  API: ${localSupabaseEndpoints.api}`)
+  console.log(`  Studio: ${localSupabaseEndpoints.studio}`)
+  console.log(`  Database: ${localSupabaseEndpoints.database}`)
   console.log('  Keys are intentionally hidden.')
   return 0
 }

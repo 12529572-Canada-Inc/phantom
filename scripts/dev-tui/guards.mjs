@@ -1,4 +1,5 @@
 import { createInterface } from 'node:readline/promises'
+import { localDatabaseTarget, localStackTarget } from './local-config.mjs'
 
 const isLocalDatabaseReset = (task) =>
   task.id === 'database:reset' &&
@@ -6,15 +7,13 @@ const isLocalDatabaseReset = (task) =>
   task.action.command === 'pnpm' &&
   JSON.stringify(task.action.args) ===
     JSON.stringify(['exec', 'supabase', 'db', 'reset', '--local']) &&
-  task.destructive?.target ===
-    'local Supabase project "phantom" at 127.0.0.1:54322' &&
+  task.destructive?.target === localDatabaseTarget &&
   task.destructive?.confirmation === 'reset local phantom'
 
 const isLocalStackRebuild = (task) =>
   task.id === 'services:nuke' &&
   task.action.type === 'local-stack-rebuild' &&
-  task.destructive?.target ===
-    'local Docker Compose project "phantom" and local Supabase project "phantom"' &&
+  task.destructive?.target === localStackTarget &&
   task.destructive?.confirmation === 'nuke and pave phantom'
 
 export const isLocalOnlyAction = (task) =>
