@@ -106,3 +106,10 @@ the client with the URL appropriate to its runtime:
 
 The physical device and development machine must be on the same network, and
 the host firewall must allow the selected `API_PORT`.
+
+## Railway deployment
+
+The production API is defined with Railway Infrastructure as Code in
+`.railway/railway.ts`. Follow the [deployment runbook](.railway/README.md) to
+provision the service, configure the Supabase server variables without
+committing secrets, and verify `GET /health` on the public Railway domain.
