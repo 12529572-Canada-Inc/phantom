@@ -35,13 +35,13 @@
 
 **Acceptance criteria:**
 
-- [ ] Email sign-up/sign-in validate inputs and present safe errors.
-- [ ] Google OAuth handles success and cancellation through the app scheme.
-- [ ] A signed-in player can sign out.
+- [x] Email sign-up/sign-in validate inputs and present safe errors.
+- [x] Google OAuth handles success and cancellation through the app scheme.
+- [x] A signed-in player can sign out.
 
 **Verification:**
 
-- [ ] `pnpm --filter @phantom/mobile test`
+- [x] `pnpm --filter @phantom/mobile test`
 - [ ] Manual flow with configured Supabase project
 
 **Dependencies:** Tasks 1 and 2

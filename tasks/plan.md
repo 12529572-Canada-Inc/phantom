@@ -36,13 +36,13 @@ document and verify the complete mobile experience.
 
 ### Phase 3: Player flows
 
-- [ ] Add accessible sign-in and sign-up screens with validation and safe
+- [x] Add accessible sign-in and sign-up screens with validation and safe
       loading/error states.
-- [ ] Add Google OAuth callback handling and a sign-out action.
+- [x] Add Google OAuth callback handling and a sign-out action.
 
 ### Checkpoint: Core features
 
-- [ ] Email, OAuth callback, cancellation, session restoration, and sign-out
+- [x] Email, OAuth callback, cancellation, session restoration, and sign-out
       paths are represented in code and testable helpers.
 
 ### Phase 4: Handoff
@@ -57,12 +57,12 @@ document and verify the complete mobile experience.
 
 ## Risks and Mitigations
 
-| Risk | Impact | Mitigation |
-| --- | --- | --- |
-| Session payload exceeds a native SecureStore value limit | High | Split values into bounded chunks and remove stale chunks on updates. |
-| OAuth redirect is not allowlisted | High | Use one documented `phantom://auth/callback` URL everywhere. |
-| Missing client environment causes an opaque startup failure | Medium | Validate configuration and show a safe configuration screen. |
-| Email confirmation returns outside the in-app browser | Medium | Handle both browser results and app deep-link callbacks. |
+| Risk                                                        | Impact | Mitigation                                                           |
+| ----------------------------------------------------------- | ------ | -------------------------------------------------------------------- |
+| Session payload exceeds a native SecureStore value limit    | High   | Split values into bounded chunks and remove stale chunks on updates. |
+| OAuth redirect is not allowlisted                           | High   | Use one documented `phantom://auth/callback` URL everywhere.         |
+| Missing client environment causes an opaque startup failure | Medium | Validate configuration and show a safe configuration screen.         |
+| Email confirmation returns outside the in-app browser       | Medium | Handle both browser results and app deep-link callbacks.             |
 
 ## Open Questions
 

@@ -2,7 +2,10 @@ import assert from 'node:assert/strict'
 import test from 'node:test'
 
 import { parseOAuthCallback } from '../src/auth/oauth'
-import { validateCredentials } from '../src/auth/validation'
+import {
+  validateCredentials,
+  validateSignUpCredentials,
+} from '../src/auth/validation'
 
 test('normalizes valid email credentials', () => {
   const result = validateCredentials('  player@example.com ', 'eldritch-signal')
@@ -20,6 +23,19 @@ test('rejects malformed email and short passwords', () => {
   const result = validateCredentials('not-an-email', 'short')
 
   assert.equal(result.success, false)
+})
+
+test('requires matching password confirmation when signing up', () => {
+  const result = validateSignUpCredentials(
+    'player@example.com',
+    'eldritch-signal',
+    'different-signal',
+  )
+
+  assert.equal(result.success, false)
+  if (!result.success) {
+    assert.equal(result.error.issues[0]?.message, 'Passwords do not match.')
+  }
 })
 
 test('extracts a complete session from an OAuth fragment', () => {

@@ -10,12 +10,6 @@
       "expo-router",
       "expo-secure-store",
       [
-        "expo-web-browser",
-        {
-          "experimentalLauncherActivity": false
-        }
-      ],
-      [
         "expo-location",
         {
           "locationAlwaysAndWhenInUsePermission": "Allow Phantom to use your location to show nearby zones."
