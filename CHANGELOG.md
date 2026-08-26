@@ -18,6 +18,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   emulators, and physical devices.
 - Added canonical repository guidance for coding agents in `AGENTS.md` and a
   thin Claude Code workflow layer in `CLAUDE.md`.
+- Added pgTAP coverage for the baseline Supabase schema and row-level security
+  behavior with anonymous and multiple authenticated users.
 - Added this changelog to track user-visible, architectural, security,
   deployment, and developer-tooling changes.
 
@@ -29,6 +31,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   root `packageManager` field as the single source for the pnpm version.
 - Added the missing shared ESLint configuration and included the API in the
   workspace type-check task so CI validates both applications.
+
+### Fixed
+
+- Fixed the initial Supabase migration so it applies from an empty database,
+  installs required extensions outside the public schema, grants only the
+  API-role privileges required by its RLS policies, and indexes zone geography
+  for proximity queries. ([#1](https://github.com/12529572-Canada-Inc/phantom/issues/1))
 
 ## [0.1.0] - 2026-07-27
 

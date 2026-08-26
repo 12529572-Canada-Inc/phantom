@@ -1,5 +1,15 @@
--- Enable PostGIS for location queries
-create extension if not exists postgis;
+-- Enable required extensions outside the public schema
+create extension if not exists pgcrypto with schema extensions;
+create extension if not exists postgis with schema extensions;
+
+-- Teams table
+create table public.teams (
+  id uuid primary key default gen_random_uuid(),
+  name text unique not null,
+  color text not null,
+  score integer default 0 not null,
+  created_at timestamptz default now()
+);
 
 -- Players table
 create table public.players (
@@ -8,15 +18,6 @@ create table public.players (
   team_id uuid references public.teams(id),
   score integer default 0 not null,
   last_seen_at timestamptz default now(),
-  created_at timestamptz default now()
-);
-
--- Teams table
-create table public.teams (
-  id uuid primary key default gen_random_uuid(),
-  name text unique not null,
-  color text not null,
-  score integer default 0 not null,
   created_at timestamptz default now()
 );
 
@@ -30,6 +31,8 @@ create table public.zones (
   captured_at timestamptz,
   created_at timestamptz default now()
 );
+
+create index zones_location_gix on public.zones using gist (location);
 
 -- Capture events log
 create table public.capture_events (
@@ -45,6 +48,11 @@ alter table public.players enable row level security;
 alter table public.zones enable row level security;
 alter table public.capture_events enable row level security;
 alter table public.teams enable row level security;
+
+-- API role privileges (RLS policies still decide which rows are accessible)
+grant select on public.zones, public.teams, public.players, public.capture_events
+  to anon, authenticated;
+grant update (username, last_seen_at) on public.players to authenticated;
 
 -- Public read for zones + teams + leaderboard
 create policy "Public read zones" on public.zones for select using (true);
