@@ -50,15 +50,15 @@
 
 **Acceptance criteria:**
 
-- [ ] Environment/provider/redirect setup is documented.
-- [ ] `CHANGELOG.md` records the user-visible feature.
-- [ ] Relevant repository checks pass.
+- [x] Environment/provider/redirect setup is documented.
+- [x] `CHANGELOG.md` records the user-visible feature.
+- [x] Relevant repository checks pass.
 
 **Verification:**
 
-- [ ] `pnpm lint`
-- [ ] `pnpm type-check`
-- [ ] `pnpm build`
-- [ ] `pnpm test`
+- [x] `pnpm lint`
+- [x] `pnpm type-check`
+- [x] `pnpm build`
+- [x] `pnpm test`
 
 **Dependencies:** Tasks 1-3

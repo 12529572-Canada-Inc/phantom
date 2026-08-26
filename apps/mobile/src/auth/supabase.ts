@@ -13,6 +13,7 @@ export const supabase = supabaseConfig.ok
       auth: {
         autoRefreshToken: true,
         detectSessionInUrl: false,
+        flowType: 'pkce',
         persistSession: true,
         storage: createSecureStoreAdapter(SecureStore),
       },

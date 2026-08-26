@@ -3,6 +3,7 @@ import type { SupabaseClient } from '@supabase/supabase-js'
 export const authCallbackUrl = 'phantom://auth/callback'
 
 type OAuthCallbackResult =
+  | { ok: true; code: string }
   | {
       ok: true
       tokens: { accessToken: string; refreshToken: string }
@@ -30,6 +31,9 @@ export function parseOAuthCallback(url: string): OAuthCallbackResult {
     return { ok: false, message: 'Authentication was not completed.' }
   }
 
+  const code = params.get('code')
+  if (code) return { ok: true, code }
+
   const accessToken = params.get('access_token')
   const refreshToken = params.get('refresh_token')
 
@@ -47,10 +51,13 @@ export async function completeSessionFromUrl(
   const callback = parseOAuthCallback(url)
   if (!callback.ok) return callback
 
-  const { error } = await supabase.auth.setSession({
-    access_token: callback.tokens.accessToken,
-    refresh_token: callback.tokens.refreshToken,
-  })
+  const { error } =
+    'code' in callback
+      ? await supabase.auth.exchangeCodeForSession(callback.code)
+      : await supabase.auth.setSession({
+          access_token: callback.tokens.accessToken,
+          refresh_token: callback.tokens.refreshToken,
+        })
 
   return error
     ? { ok: false as const, message: 'Unable to establish a secure session.' }

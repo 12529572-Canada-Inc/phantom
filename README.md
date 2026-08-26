@@ -107,6 +107,54 @@ the client with the URL appropriate to its runtime:
 The physical device and development machine must be on the same network, and
 the host firewall must allow the selected `API_PORT`.
 
+### Mobile authentication
+
+Copy the mobile environment template and replace its placeholders with the
+public values from the Supabase project Connect panel:
+
+```bash
+cp apps/mobile/.env.example apps/mobile/.env.local
+pnpm --filter @phantom/mobile dev
+```
+
+Expo only exposes variables prefixed with `EXPO_PUBLIC_`. The publishable key
+(or legacy anon key via `EXPO_PUBLIC_SUPABASE_ANON_KEY`) is safe to include in
+the client because Supabase row-level security remains the authorization
+boundary. Never add the service-role key to the mobile environment.
+
+Use a Supabase URL reachable from the selected runtime:
+
+| Runtime          | Local Supabase URL                  |
+| ---------------- | ----------------------------------- |
+| iOS simulator    | `http://127.0.0.1:54321`            |
+| Android emulator | `http://10.0.2.2:54321`             |
+| Physical device  | `http://<development-LAN-IP>:54321` |
+
+The app persists the Supabase session in encrypted SecureStore and uses
+`phantom://auth/callback` for email-confirmation and Google OAuth callbacks.
+The redirect uses PKCE so callback URLs carry a short-lived, one-time code
+instead of session tokens. That URL must appear in the Supabase Auth redirect
+allow list; it is already in the checked-in local `supabase/config.toml`.
+Custom schemes require an Expo development build or standalone app rather than
+Expo Go.
+
+To enable Google sign-in for a hosted project:
+
+1. Create a Google OAuth client with application type **Web application** and
+   the minimal `openid`, email, and profile scopes.
+2. Add the Supabase callback shown on the Google provider page (normally
+   `https://<project-ref>.supabase.co/auth/v1/callback`) to Google's authorized
+   redirect URIs.
+3. Enable Google in the Supabase Auth provider settings with that client ID and
+   secret. Keep the secret in Google/Supabase configuration, never in Expo.
+4. Add `phantom://auth/callback` to the hosted project's Supabase redirect allow
+   list.
+
+See Supabase's official [Google provider setup](https://supabase.com/docs/guides/auth/social-login/auth-google)
+and [native deep-linking guide](https://supabase.com/docs/guides/auth/native-mobile-deep-linking)
+for dashboard details. If email confirmation is enabled, confirmation links use
+the same app callback.
+
 ## Railway deployment
 
 The production API is defined with Railway Infrastructure as Code in

@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Added Supabase email/password and Google authentication to the Expo app with
+  guarded routes, encrypted SecureStore session persistence, deep-link callback
+  handling, accessible loading/error states, and sign-out. ([#3](https://github.com/12529572-Canada-Inc/phantom/issues/3))
 - Added Railway Infrastructure as Code and a production API deployment runbook
   covering Supabase secret handling and `/health` verification. ([#2](https://github.com/12529572-Canada-Inc/phantom/issues/2))
 - Added an interactive development task menu with headless task IDs,
@@ -27,6 +30,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Added the Expo SDK 51 monorepo Metro configuration and pinned Router peers to
+  their SDK-compatible versions so pnpm-isolated iOS and Android exports build
+  reproducibly.
 - Clarified the baseline public-read policies and distinguished recommended
   local checks from the checks currently enforced by CI.
 - Updated CI and release workflows to use Node 24–based action runtimes and the

@@ -47,13 +47,13 @@ document and verify the complete mobile experience.
 
 ### Phase 4: Handoff
 
-- [ ] Document environment, redirect, Google provider, and manual-test setup.
-- [ ] Add the user-visible changelog entry and run repository checks.
+- [x] Document environment, redirect, Google provider, and manual-test setup.
+- [x] Add the user-visible changelog entry. Repository checks remain below.
 
 ### Checkpoint: Complete
 
-- [ ] All automated acceptance criteria pass.
-- [ ] Remaining manual checks require only project credentials/provider setup.
+- [x] All automated acceptance criteria pass.
+- [x] Remaining manual checks require only project credentials/provider setup.
 
 ## Risks and Mitigations
 

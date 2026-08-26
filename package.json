@@ -13,7 +13,7 @@
     "docker:status": "./scripts/manage_setup.sh status",
     "docker:config": "./scripts/manage_setup.sh config",
     "lint": "turbo lint",
-    "test": "node --test scripts/dev-tui/*.test.mjs",
+    "test": "node --test scripts/dev-tui/*.test.mjs && pnpm --filter @phantom/mobile test",
     "type-check": "turbo type-check",
     "format": "prettier --write \"**/*.{ts,tsx,md,json,mjs}\""
   },

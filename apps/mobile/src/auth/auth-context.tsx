@@ -42,24 +42,32 @@ export function AuthProvider({ children }: PropsWithChildren) {
       }
     })
 
-    void client.auth.getSession().then(({ data }) => {
-      if (isMounted) {
-        setSession(data.session)
-        setIsLoading(false)
-      }
-    })
+    void client.auth
+      .getSession()
+      .then(({ data }) => {
+        if (isMounted) setSession(data.session)
+      })
+      .catch(() => {
+        if (isMounted) setSession(null)
+      })
+      .finally(() => {
+        if (isMounted) setIsLoading(false)
+      })
 
     if (AppState.currentState === 'active') {
       client.auth.startAutoRefresh()
     }
 
-    const appStateSubscription = AppState.addEventListener('change', (state) => {
-      if (state === 'active') {
-        client.auth.startAutoRefresh()
-      } else {
-        client.auth.stopAutoRefresh()
-      }
-    })
+    const appStateSubscription = AppState.addEventListener(
+      'change',
+      (state) => {
+        if (state === 'active') {
+          client.auth.startAutoRefresh()
+        } else {
+          client.auth.stopAutoRefresh()
+        }
+      },
+    )
 
     return () => {
       isMounted = false
@@ -72,8 +80,12 @@ export function AuthProvider({ children }: PropsWithChildren) {
   const signOut = useCallback(async () => {
     if (!supabase) return false
 
-    const { error } = await supabase.auth.signOut()
-    return !error
+    try {
+      const { error } = await supabase.auth.signOut()
+      return !error
+    } catch {
+      return false
+    }
   }, [])
 
   const value = useMemo<AuthContextValue>(

@@ -50,6 +50,13 @@ test('extracts a complete session from an OAuth fragment', () => {
   )
 })
 
+test('extracts a one-time PKCE authorization code', () => {
+  assert.deepEqual(
+    parseOAuthCallback('phantom://auth/callback?code=one-time-code'),
+    { ok: true, code: 'one-time-code' },
+  )
+})
+
 test('returns a safe OAuth error without exposing callback details', () => {
   assert.deepEqual(
     parseOAuthCallback(
