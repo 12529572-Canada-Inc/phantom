@@ -29,6 +29,18 @@ test('database reset is fixed to the local project and requires confirmation', (
   assert.equal(reset.destructive.confirmation, 'reset local phantom')
 })
 
+test('nuke and pave is a fixed local-stack action with explicit confirmation', () => {
+  const rebuild = taskById.get('services:nuke')
+
+  assert.ok(rebuild.destructive)
+  assert.equal(rebuild.action.type, 'local-stack-rebuild')
+  assert.equal(isLocalOnlyAction(rebuild), true)
+  assert.match(rebuild.destructive.target, /Compose project \"phantom\"/)
+  assert.match(rebuild.destructive.target, /Supabase project \"phantom\"/)
+  assert.equal(rebuild.destructive.confirmation, 'nuke and pave phantom')
+  assert.match(rebuild.notice, /permanently deletes/i)
+})
+
 test('destructive actions that are not provably local are refused', async () => {
   const reset = taskById.get('database:reset')
   const unsafeReset = {
@@ -43,6 +55,45 @@ test('destructive actions that are not provably local are refused', async () => 
   await assert.rejects(
     confirmDestructiveAction(unsafeReset),
     /not provably local-only/,
+  )
+})
+
+test('the local stack action is rejected when its fixed action changes', () => {
+  const rebuild = taskById.get('services:nuke')
+
+  assert.equal(
+    isLocalOnlyAction({
+      ...rebuild,
+      action: {
+        type: 'external',
+        command: 'docker',
+        args: ['system', 'prune'],
+      },
+    }),
+    false,
+  )
+})
+
+test('task definitions and nested destructive actions are immutable', () => {
+  const rebuild = taskById.get('services:nuke')
+
+  assert.equal(Object.isFrozen(rebuild), true)
+  assert.equal(Object.isFrozen(rebuild.action), true)
+  assert.equal(Object.isFrozen(rebuild.destructive), true)
+})
+
+test('destructive confirmation requires interactive input and output', async () => {
+  const output = {
+    isTTY: false,
+    write() {},
+  }
+
+  assert.equal(
+    await confirmDestructiveAction(taskById.get('services:nuke'), {
+      input: { isTTY: true },
+      output,
+    }),
+    false,
   )
 })
 

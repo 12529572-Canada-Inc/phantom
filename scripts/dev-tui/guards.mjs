@@ -1,9 +1,24 @@
 import { createInterface } from 'node:readline/promises'
 
-export const isLocalOnlyAction = (task) =>
+const isLocalDatabaseReset = (task) =>
+  task.id === 'database:reset' &&
   task.action.type === 'external' &&
-  task.action.args.includes('--local') &&
-  task.destructive?.target.startsWith('local Supabase project ')
+  task.action.command === 'pnpm' &&
+  JSON.stringify(task.action.args) ===
+    JSON.stringify(['exec', 'supabase', 'db', 'reset', '--local']) &&
+  task.destructive?.target ===
+    'local Supabase project "phantom" at 127.0.0.1:54322' &&
+  task.destructive?.confirmation === 'reset local phantom'
+
+const isLocalStackRebuild = (task) =>
+  task.id === 'services:nuke' &&
+  task.action.type === 'local-stack-rebuild' &&
+  task.destructive?.target ===
+    'local Docker Compose project "phantom" and local Supabase project "phantom"' &&
+  task.destructive?.confirmation === 'nuke and pave phantom'
+
+export const isLocalOnlyAction = (task) =>
+  isLocalDatabaseReset(task) || isLocalStackRebuild(task)
 
 export const confirmDestructiveAction = async (
   task,
@@ -19,7 +34,7 @@ export const confirmDestructiveAction = async (
     )
   }
 
-  if (!input.isTTY) {
+  if (!input.isTTY || !output.isTTY) {
     output.write(
       'Refusing destructive action without an interactive terminal. Use --dry-run to inspect it.\n',
     )

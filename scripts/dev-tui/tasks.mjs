@@ -4,7 +4,28 @@ const external = (command, args) => ({
   args,
 })
 
-const task = (definition) => Object.freeze(definition)
+const freezeAction = (action) => {
+  if (action.type === 'sequence') {
+    return Object.freeze({
+      ...action,
+      steps: Object.freeze(
+        action.steps.map((step) => Object.freeze({ ...step })),
+      ),
+    })
+  }
+
+  return Object.freeze({ ...action })
+}
+
+const task = (definition) =>
+  Object.freeze({
+    ...definition,
+    requires: Object.freeze([...definition.requires]),
+    action: freezeAction(definition.action),
+    ...(definition.destructive
+      ? { destructive: Object.freeze({ ...definition.destructive }) }
+      : {}),
+  })
 
 export const tasks = Object.freeze([
   task({
@@ -31,6 +52,22 @@ export const tasks = Object.freeze([
     description: 'Stop only Phantom-owned Docker and Supabase services.',
     requires: ['pnpm', 'docker', 'supabase'],
     action: external('pnpm', ['docker:stop']),
+  }),
+  task({
+    id: 'services:nuke',
+    group: 'Services',
+    label: 'Nuke and pave local stack',
+    description:
+      'Permanently replace Phantom Docker resources and local Supabase data.',
+    requires: ['pnpm', 'docker', 'supabase'],
+    notice:
+      'WARNING: This permanently deletes local Supabase data and the local Docker Compose project "phantom" (containers, volumes, and network), then rebuilds both from scratch. Source files, dependencies, environment files, hosted Supabase, and unrelated Docker projects are preserved.',
+    destructive: {
+      target:
+        'local Docker Compose project "phantom" and local Supabase project "phantom"',
+      confirmation: 'nuke and pave phantom',
+    },
+    action: { type: 'local-stack-rebuild' },
   }),
   task({
     id: 'services:status',
