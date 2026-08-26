@@ -24,7 +24,7 @@ test('category view stays compact and does not render task descriptions', () => 
     ['Environment', 'Services', 'Database', 'Quality'],
   )
   assert.match(output, /› Environment\s+1 task/)
-  assert.match(output, /Services\s+7 tasks/)
+  assert.match(output, /Services\s+8 tasks/)
   assert.doesNotMatch(output, /Check Node, pnpm, Docker/)
   assert.ok(output.split('\n').length <= 10)
 })

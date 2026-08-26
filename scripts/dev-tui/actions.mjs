@@ -81,7 +81,8 @@ const runAction = async (task, options) => {
         }
         return result.exitCode
       } catch (error) {
-        console.error(`Safety check failed: ${error.message}`)
+        const message = error instanceof Error ? error.message : String(error)
+        console.error(`Safety check failed: ${message}`)
         return 78
       }
     }

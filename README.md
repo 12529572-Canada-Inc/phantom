@@ -37,6 +37,7 @@ pnpm dev:task -- --list
 pnpm dev:task -- environment:check
 pnpm dev:task -- quality:pre-pr
 pnpm dev:task -- database:reset --dry-run
+pnpm dev:task -- services:nuke --dry-run
 ```
 
 Commands stream their output and return the child command's exit code. The
@@ -44,6 +45,26 @@ local database reset requires an interactive typed confirmation and refuses to
 run without the Supabase CLI's `--local` guard. Arguments are passed directly
 to child processes without shell interpolation. Environment checks report only
 whether sensitive values are configured; they never print their contents.
+
+The Services category also includes **Nuke and pave local stack**. After the
+exact typed confirmation `nuke and pave phantom`, it permanently deletes the
+local `phantom` Compose containers, volumes, and network plus all data in the
+local Supabase project, then starts Supabase, reapplies migrations, rebuilds the
+API image without its build cache, and waits for the API container to become
+healthy. Use the `--dry-run` command above to inspect the complete plan without
+running prerequisite checks or child processes.
+
+Before deletion, the task refuses redirecting Docker, Compose, or Supabase
+environment variables; rejects non-local Docker endpoints; verifies the
+checked-in Compose and Supabase configuration; and refuses existing Compose
+resources owned by another checkout. It does not delete source files,
+dependencies, environment files, hosted Supabase data, Docker images, or
+unrelated Docker projects. Do not run another Phantom stack command at the
+same time. Both Compose and local Supabase identify this project as `phantom`,
+so two Phantom checkouts share those local namespaces and should not be run
+concurrently. The workflow stops after the first failed step; a failure after
+teardown can intentionally leave the stack down or partially rebuilt. Correct
+the reported problem and rerun the task to finish paving it.
 
 Run `pnpm dev` directly when you want Turbo's persistent development tasks
 without the menu.
@@ -83,8 +104,9 @@ Other commands:
 | `pnpm docker:status` | Show API and local Supabase status            |
 | `pnpm docker:config` | Validate the Compose configuration            |
 
-The menu delegates Docker lifecycle work to these commands rather than
-duplicating Compose orchestration.
+Routine menu actions delegate Docker lifecycle work to these commands. The
+destructive nuke-and-pave task uses its own fixed, guarded command plan so its
+full scope is visible in `--dry-run` output.
 
 `API_PORT` changes the host port published by Compose, which sets the
 container's `PORT` to `3001`. When running the image directly, `PORT` defaults
