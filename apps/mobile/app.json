@@ -8,6 +8,13 @@
     "platforms": ["ios", "android"],
     "plugins": [
       "expo-router",
+      "expo-secure-store",
+      [
+        "expo-web-browser",
+        {
+          "experimentalLauncherActivity": false
+        }
+      ],
       [
         "expo-location",
         {
