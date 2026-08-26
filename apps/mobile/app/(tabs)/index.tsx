@@ -2,18 +2,16 @@ import { useState } from 'react'
 import { Pressable, View, Text, StyleSheet } from 'react-native'
 
 import { useAuth } from '../../src/auth/auth-context'
+import { performSignOut, type SignOutStatus } from '../../src/auth/sign-out'
 
 export default function MapScreen() {
   const { signOut } = useAuth()
-  const [isSigningOut, setIsSigningOut] = useState(false)
-  const [signOutError, setSignOutError] = useState(false)
+  const [signOutStatus, setSignOutStatus] = useState<SignOutStatus>('idle')
+  const isSigningOut = signOutStatus === 'pending'
+  const signOutError = signOutStatus === 'failed'
 
   async function handleSignOut() {
-    setIsSigningOut(true)
-    setSignOutError(false)
-    const succeeded = await signOut()
-    setSignOutError(!succeeded)
-    setIsSigningOut(false)
+    await performSignOut(signOut, setSignOutStatus)
   }
 
   return (
