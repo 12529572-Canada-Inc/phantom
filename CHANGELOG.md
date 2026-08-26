@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Added a cosmic-themed mobile map centered on the player's foreground
+  location, with permission and service recovery states, a position marker,
+  and an accessible recenter control. ([#4](https://github.com/12529572-Canada-Inc/phantom/issues/4))
 - Added Supabase email/password and Google authentication to the Expo app with
   guarded routes, encrypted SecureStore session persistence, deep-link callback
   handling, accessible loading/error states, and sign-out. ([#3](https://github.com/12529572-Canada-Inc/phantom/issues/3))
