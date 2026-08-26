@@ -23,7 +23,7 @@ document and verify the complete mobile experience.
 
 - [x] Add Expo-compatible auth dependencies and a tested SecureStore adapter.
 - [x] Configure the Supabase client and environment validation.
-- [ ] Add foreground token refresh with the session provider.
+- [x] Add foreground token refresh with the session provider.
 
 ### Checkpoint: Foundation
 
@@ -31,8 +31,8 @@ document and verify the complete mobile experience.
 
 ### Phase 2: Session boundary
 
-- [ ] Add an auth provider that restores and subscribes to the session.
-- [ ] Guard the tabs and redirect users from the entry route by auth state.
+- [x] Add an auth provider that restores and subscribes to the session.
+- [x] Guard the tabs and redirect users from the entry route by auth state.
 
 ### Phase 3: Player flows
 

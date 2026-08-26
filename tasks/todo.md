@@ -20,14 +20,14 @@
 
 **Acceptance criteria:**
 
-- [ ] One provider restores and subscribes to Supabase auth state.
-- [ ] Tabs reject unauthenticated access.
-- [ ] The app entry route resolves loading, signed-out, and signed-in states.
+- [x] One provider restores and subscribes to Supabase auth state.
+- [x] Tabs reject unauthenticated access.
+- [x] The app entry route resolves loading, signed-out, and signed-in states.
 
 **Verification:**
 
-- [ ] `pnpm --filter @phantom/mobile lint`
-- [ ] `pnpm --filter @phantom/mobile type-check`
+- [x] `pnpm --filter @phantom/mobile lint`
+- [x] `pnpm --filter @phantom/mobile type-check`
 
 **Dependencies:** Task 1
 
