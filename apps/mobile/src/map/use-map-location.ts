@@ -3,9 +3,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 
 import { loadMapLocation, type MapLocationState } from './map-location'
 
-export type MapScreenLocationState =
-  | { status: 'loading' }
-  | MapLocationState
+export type MapScreenLocationState = { status: 'loading' } | MapLocationState
 
 export function useMapLocation() {
   const requestId = useRef(0)
