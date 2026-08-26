@@ -9,31 +9,94 @@ const readKey = () =>
     process.stdin.once('keypress', (_value, key) => resolve(key))
   })
 
-const render = (tasks, selected, prerequisites, message) => {
-  clear()
-  console.log('Phantom development tasks')
-  console.log('↑/↓ navigate · Enter run · q/Esc exit\n')
+export const createTaskGroups = (tasks) => {
+  const groups = []
+  const groupByName = new Map()
 
-  let group
-  tasks.forEach((task, index) => {
-    if (task.group !== group) {
-      group = task.group
-      console.log(`${group}`)
+  for (const task of tasks) {
+    let group = groupByName.get(task.group)
+    if (!group) {
+      group = { name: task.group, tasks: [] }
+      groupByName.set(task.group, group)
+      groups.push(group)
     }
-
-    const cursor = index === selected ? '›' : ' '
-    const missing = missingRequirements(task, prerequisites)
-    const unavailable =
-      missing.length > 0 ? ` (unavailable: ${missing.join(', ')})` : ''
-    const destructive = task.destructive ? ' [destructive]' : ''
-    console.log(
-      `${cursor} ${task.label}${destructive}${unavailable}\n    ${task.description}`,
-    )
-  })
-
-  if (message) {
-    console.log(`\n${message}`)
+    group.tasks.push(task)
   }
+
+  return groups
+}
+
+const wrapIndex = (index, change, length) =>
+  length === 0 ? 0 : (index + change + length) % length
+
+export const updateMenuState = (groups, state, intent) => {
+  if (intent === 'back' && state.activeGroupIndex !== null) {
+    return {
+      activeGroupIndex: null,
+      selectedIndex: state.activeGroupIndex,
+    }
+  }
+
+  if (intent === 'open' && state.activeGroupIndex === null) {
+    if (!groups[state.selectedIndex]) return state
+    return { activeGroupIndex: state.selectedIndex, selectedIndex: 0 }
+  }
+
+  const change = intent === 'previous' ? -1 : intent === 'next' ? 1 : 0
+  if (change === 0) return state
+
+  const itemCount =
+    state.activeGroupIndex === null
+      ? groups.length
+      : (groups[state.activeGroupIndex]?.tasks.length ?? 0)
+
+  return {
+    ...state,
+    selectedIndex: wrapIndex(state.selectedIndex, change, itemCount),
+  }
+}
+
+export const formatMenu = (groups, state, prerequisites, message) => {
+  const activeGroup =
+    state.activeGroupIndex === null ? null : groups[state.activeGroupIndex]
+  const lines = ['Phantom development tasks']
+
+  if (!activeGroup) {
+    lines.push('Select a category')
+    lines.push('↑/↓ navigate · Enter open · q/Esc exit', '')
+    groups.forEach((group, index) => {
+      const cursor = index === state.selectedIndex ? '›' : ' '
+      const count = `${group.tasks.length} task${group.tasks.length === 1 ? '' : 's'}`
+      lines.push(`${cursor} ${group.name.padEnd(16)} ${count}`)
+    })
+  } else {
+    lines.push(activeGroup.name)
+    lines.push('↑/↓ navigate · Enter run · ←/b back · q/Esc exit', '')
+    activeGroup.tasks.forEach((task, index) => {
+      const cursor = index === state.selectedIndex ? '›' : ' '
+      const missing = missingRequirements(task, prerequisites)
+      const unavailable = missing.length > 0 ? ' [unavailable]' : ''
+      const destructive = task.destructive ? ' [destructive]' : ''
+      lines.push(`${cursor} ${task.label}${destructive}${unavailable}`)
+    })
+
+    const selectedTask = activeGroup.tasks[state.selectedIndex]
+    if (selectedTask) {
+      const missing = missingRequirements(selectedTask, prerequisites)
+      lines.push('', selectedTask.description)
+      if (missing.length > 0) {
+        lines.push(`Unavailable: ${missing.join(', ')}`)
+      }
+    }
+  }
+
+  if (message) lines.push('', message)
+  return lines.join('\n')
+}
+
+const render = (groups, state, prerequisites, message) => {
+  clear()
+  console.log(formatMenu(groups, state, prerequisites, message))
 }
 
 export const runTui = async (tasks, { cwd } = {}) => {
@@ -45,7 +108,8 @@ export const runTui = async (tasks, { cwd } = {}) => {
   }
 
   const prerequisites = inspectPrerequisites()
-  let selected = 0
+  const groups = createTaskGroups(tasks)
+  let state = { activeGroupIndex: null, selectedIndex: 0 }
   let message = ''
   emitKeypressEvents(process.stdin)
   process.stdin.setRawMode(true)
@@ -53,7 +117,7 @@ export const runTui = async (tasks, { cwd } = {}) => {
 
   try {
     while (true) {
-      render(tasks, selected, prerequisites, message)
+      render(groups, state, prerequisites, message)
       const key = await readKey()
       message = ''
 
@@ -67,11 +131,20 @@ export const runTui = async (tasks, { cwd } = {}) => {
       }
 
       if (key.name === 'up' || key.name === 'k') {
-        selected = (selected - 1 + tasks.length) % tasks.length
+        state = updateMenuState(groups, state, 'previous')
       } else if (key.name === 'down' || key.name === 'j') {
-        selected = (selected + 1) % tasks.length
+        state = updateMenuState(groups, state, 'next')
+      } else if (key.name === 'left' || key.name === 'b') {
+        state = updateMenuState(groups, state, 'back')
       } else if (key.name === 'return') {
-        const selectedTask = tasks[selected]
+        if (state.activeGroupIndex === null) {
+          state = updateMenuState(groups, state, 'open')
+          continue
+        }
+
+        const selectedTask =
+          groups[state.activeGroupIndex]?.tasks[state.selectedIndex]
+        if (!selectedTask) continue
         const missing = missingRequirements(selectedTask, prerequisites)
         if (missing.length > 0) {
           message = `Unavailable: ${missing.join(', ')}. Run Check prerequisites for guidance.`
