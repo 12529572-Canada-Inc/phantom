@@ -1,14 +1,14 @@
-import { useState } from 'react'
+import { type PropsWithChildren, useState } from 'react'
 import { Pressable, StyleSheet, Text, View } from 'react-native'
 
 import { useAuth } from '../../src/auth/auth-context'
 import { performSignOut, type SignOutStatus } from '../../src/auth/sign-out'
 
-type MapHudProps = {
+type MapHudProps = PropsWithChildren<{
   signalLocked: boolean
-}
+}>
 
-export function MapHud({ signalLocked }: MapHudProps) {
+export function MapHud({ children, signalLocked }: MapHudProps) {
   const { signOut } = useAuth()
   const [signOutStatus, setSignOutStatus] = useState<SignOutStatus>('idle')
   const isSigningOut = signOutStatus === 'pending'
@@ -20,11 +20,14 @@ export function MapHud({ signalLocked }: MapHudProps) {
   return (
     <>
       <View pointerEvents="box-none" style={styles.hud}>
-        <View pointerEvents="none" style={styles.signalPanel}>
-          <Text style={styles.eyebrow}>PHANTOM // MAP</Text>
-          <Text accessibilityRole="header" style={styles.signalText}>
-            {signalLocked ? 'SIGNAL LOCKED' : 'SEARCHING THE VEIL'}
-          </Text>
+        <View style={styles.leftColumn}>
+          <View pointerEvents="none" style={styles.signalPanel}>
+            <Text style={styles.eyebrow}>PHANTOM // MAP</Text>
+            <Text accessibilityRole="header" style={styles.signalText}>
+              {signalLocked ? 'SIGNAL LOCKED' : 'SEARCHING THE VEIL'}
+            </Text>
+          </View>
+          {children}
         </View>
 
         <Pressable
@@ -61,6 +64,7 @@ const styles = StyleSheet.create({
     letterSpacing: 1.8,
   },
   hud: {
+    alignItems: 'flex-start',
     flexDirection: 'row',
     justifyContent: 'space-between',
     left: 16,
@@ -68,6 +72,7 @@ const styles = StyleSheet.create({
     right: 16,
     top: 16,
   },
+  leftColumn: { gap: 8 },
   pressedButton: { opacity: 0.72 },
   signalPanel: {
     backgroundColor: 'rgba(17, 17, 27, 0.94)',
@@ -99,6 +104,7 @@ const styles = StyleSheet.create({
   signOutError: {
     backgroundColor: '#3f1725',
     borderRadius: 6,
+    bottom: 76,
     color: '#fecdd3',
     fontSize: 13,
     left: 16,
@@ -106,7 +112,6 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     position: 'absolute',
     right: 16,
-    top: 78,
   },
   signOutText: {
     color: '#d4d4d8',

@@ -33,14 +33,14 @@
 
 **Acceptance criteria:**
 
-- [ ] The player marker updates from foreground location events.
-- [ ] The map exposes accessible opt-in, active, denied, error, and stop states.
-- [ ] Permission and foreground-service copy explain continuous tracking.
+- [x] The player marker updates from foreground location events.
+- [x] The map exposes accessible opt-in, active, denied, error, and stop states.
+- [x] Permission and foreground-service copy explain continuous tracking.
 
 **Verification:**
 
-- [ ] `pnpm --filter @phantom/mobile lint`
-- [ ] `pnpm --filter @phantom/mobile build`
+- [x] `pnpm --filter @phantom/mobile lint`
+- [x] `pnpm --filter @phantom/mobile build`
 - [ ] Manual physical-device development-build test on iOS and Android
 
 **Dependencies:** Task 2
@@ -49,15 +49,15 @@
 
 **Acceptance criteria:**
 
-- [ ] `CHANGELOG.md` records the user-visible and privacy-sensitive change.
-- [ ] Relevant repository checks pass.
-- [ ] Remaining manual verification is documented precisely.
+- [x] `CHANGELOG.md` records the user-visible and privacy-sensitive change.
+- [x] Relevant repository checks pass.
+- [x] Remaining manual verification is documented precisely.
 
 **Verification:**
 
-- [ ] `pnpm lint`
-- [ ] `pnpm type-check`
-- [ ] `pnpm build`
-- [ ] `pnpm test`
+- [x] `pnpm lint`
+- [x] `pnpm type-check`
+- [x] `pnpm build`
+- [x] `pnpm test`
 
 **Dependencies:** Tasks 1-3

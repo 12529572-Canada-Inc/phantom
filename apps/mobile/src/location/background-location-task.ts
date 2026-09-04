@@ -9,6 +9,9 @@ type BackgroundLocationTaskData = {
   locations: Location.LocationObject[]
 }
 
+// Expo loads the JS bundle without mounting React views for background events,
+// so the task must be defined at module scope.
+// Source: https://docs.expo.dev/versions/latest/sdk/task-manager/#taskmanagerdefinetasktaskname-taskexecutor
 if (!TaskManager.isTaskDefined(PLAYER_LOCATION_TASK)) {
   TaskManager.defineTask<BackgroundLocationTaskData>(
     PLAYER_LOCATION_TASK,

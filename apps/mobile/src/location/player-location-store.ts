@@ -1,5 +1,9 @@
 import { supabase } from '../auth/supabase'
-import type { LocationCoordinates } from './location-tracking'
+import { readPlayerLocationConsent } from './location-consent'
+import {
+  hasMatchingTrackingConsent,
+  type LocationCoordinates,
+} from './location-tracking'
 
 export async function persistPlayerLocation(
   coordinates: LocationCoordinates,
@@ -11,6 +15,10 @@ export async function persistPlayerLocation(
       data: { session },
     } = await supabase.auth.getSession()
     if (!session) return false
+    const consentingPlayerId = await readPlayerLocationConsent()
+    if (!hasMatchingTrackingConsent(consentingPlayerId, session.user.id)) {
+      return false
+    }
 
     const { error } = await supabase.from('player_locations').upsert(
       {

@@ -44,25 +44,25 @@ foreground updates and controls to the map.
 
 ### Phase 3: Live map and handoff
 
-- [ ] Stream foreground position changes into the existing player marker.
-- [ ] Add accessible enable/disable controls and safe tracking status messages.
-- [ ] Update the changelog and physical-device manual test guidance.
+- [x] Stream foreground position changes into the existing player marker.
+- [x] Add accessible enable/disable controls and safe tracking status messages.
+- [x] Update the changelog and physical-device manual test guidance.
 
 ### Checkpoint: Complete
 
-- [ ] Repository checks pass.
-- [ ] Manual iOS/Android development-build steps are documented.
+- [x] Repository checks pass.
+- [x] Manual iOS/Android development-build steps are documented.
 
 ## Risks and Mitigations
 
-| Risk | Impact | Mitigation |
-| --- | --- | --- |
-| Existing public `players` reads expose new fields | High | Isolate coordinates in a self-only table. |
-| A player writes another player's position | High | Primary-key ownership checks on insert/update/delete. |
-| Tracking continues after sign-out | High | Stop the native task before deleting data and clearing auth. |
-| Invalid native coordinates reach storage | Medium | Validate in mobile code and PostgreSQL constraints. |
-| OS throttles the five-second target | Medium | Configure supported minimum intervals and document best-effort behavior. |
-| Background APIs appear to work in Expo Go | Medium | Require physical-device development-build verification. |
+| Risk                                              | Impact | Mitigation                                                               |
+| ------------------------------------------------- | ------ | ------------------------------------------------------------------------ |
+| Existing public `players` reads expose new fields | High   | Isolate coordinates in a self-only table.                                |
+| A player writes another player's position         | High   | Primary-key ownership checks on insert/update/delete.                    |
+| Tracking continues after sign-out                 | High   | Stop the native task before deleting data and clearing auth.             |
+| Invalid native coordinates reach storage          | Medium | Validate in mobile code and PostgreSQL constraints.                      |
+| OS throttles the five-second target               | Medium | Configure supported minimum intervals and document best-effort behavior. |
+| Background APIs appear to work in Expo Go         | Medium | Require physical-device development-build verification.                  |
 
 ## Open Questions
 

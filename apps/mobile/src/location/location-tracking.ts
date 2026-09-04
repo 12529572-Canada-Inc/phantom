@@ -11,6 +11,8 @@ type StartLocationTrackingGateway = {
   isBackgroundLocationAvailable: () => Promise<boolean>
   requestForegroundPermission: () => Promise<boolean>
   requestBackgroundPermission: () => Promise<boolean>
+  saveConsent: () => Promise<void>
+  clearConsent: () => Promise<void>
   startUpdates: () => Promise<void>
 }
 
@@ -18,6 +20,15 @@ type StopLocationTrackingGateway = {
   hasStartedUpdates: () => Promise<boolean>
   stopUpdates: () => Promise<void>
   clearStoredLocation: () => Promise<boolean>
+  clearConsent: () => Promise<void>
+}
+
+type ReconcileLocationTrackingGateway = {
+  hasStartedUpdates: () => Promise<boolean>
+  readConsentingPlayerId: () => Promise<string | null>
+  stopUpdates: () => Promise<void>
+  clearStoredLocation: () => Promise<boolean>
+  clearConsent: () => Promise<void>
 }
 
 export type LocationTrackingStartResult =
@@ -27,6 +38,64 @@ export type LocationTrackingStartResult =
   | 'unavailable'
 
 export type LocationTrackingStopResult = 'inactive' | 'unavailable'
+
+export function hasMatchingTrackingConsent(
+  consentingPlayerId: string | null,
+  currentPlayerId: string | null,
+) {
+  return consentingPlayerId !== null && consentingPlayerId === currentPlayerId
+}
+
+export async function reconcileLocationTracking(
+  currentPlayerId: string,
+  gateway: ReconcileLocationTrackingGateway,
+): Promise<'active' | 'inactive' | 'unavailable'> {
+  let hasStartedUpdates: boolean
+  let consentingPlayerId: string | null
+
+  try {
+    const persistedState = await Promise.all([
+      gateway.hasStartedUpdates(),
+      gateway.readConsentingPlayerId(),
+    ])
+    hasStartedUpdates = persistedState[0]
+    consentingPlayerId = persistedState[1]
+  } catch {
+    return 'unavailable'
+  }
+
+  if (
+    hasStartedUpdates &&
+    hasMatchingTrackingConsent(consentingPlayerId, currentPlayerId)
+  ) {
+    return 'active'
+  }
+
+  let reconciled = true
+  if (consentingPlayerId !== null) {
+    try {
+      await gateway.clearConsent()
+    } catch {
+      reconciled = false
+    }
+  }
+
+  if (hasStartedUpdates) {
+    try {
+      await gateway.stopUpdates()
+    } catch {
+      reconciled = false
+    }
+  }
+
+  try {
+    if (!(await gateway.clearStoredLocation())) reconciled = false
+  } catch {
+    reconciled = false
+  }
+
+  return reconciled ? 'inactive' : 'unavailable'
+}
 
 export function isValidCoordinates(coordinates: LocationCoordinates) {
   return (
@@ -58,6 +127,8 @@ export async function persistLatestLocation(
 export async function startLocationTracking(
   gateway: StartLocationTrackingGateway,
 ): Promise<LocationTrackingStartResult> {
+  let consentSaved = false
+
   try {
     if (!(await gateway.isBackgroundLocationAvailable())) return 'unavailable'
     if (!(await gateway.requestForegroundPermission())) {
@@ -67,9 +138,18 @@ export async function startLocationTracking(
       return 'background-permission-denied'
     }
 
+    await gateway.saveConsent()
+    consentSaved = true
     await gateway.startUpdates()
     return 'active'
   } catch {
+    if (consentSaved) {
+      try {
+        await gateway.clearConsent()
+      } catch {
+        // The unavailable result covers both native and consent cleanup errors.
+      }
+    }
     return 'unavailable'
   }
 }
@@ -78,6 +158,14 @@ export async function stopLocationTracking(
   gateway: StopLocationTrackingGateway,
 ): Promise<LocationTrackingStopResult> {
   let didStopUpdates = true
+  let didClearLocation = false
+  let didClearConsent = true
+
+  try {
+    await gateway.clearConsent()
+  } catch {
+    didClearConsent = false
+  }
 
   try {
     if (await gateway.hasStartedUpdates()) await gateway.stopUpdates()
@@ -86,9 +174,12 @@ export async function stopLocationTracking(
   }
 
   try {
-    const didClearLocation = await gateway.clearStoredLocation()
-    return didStopUpdates && didClearLocation ? 'inactive' : 'unavailable'
+    didClearLocation = await gateway.clearStoredLocation()
   } catch {
-    return 'unavailable'
+    didClearLocation = false
   }
+
+  return didStopUpdates && didClearLocation && didClearConsent
+    ? 'inactive'
+    : 'unavailable'
 }

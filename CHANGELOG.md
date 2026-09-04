@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Added explicit opt-in background player location tracking with a live map
+  marker, five-second best-effort updates, latest-position-only retention,
+  self-only Supabase policies, and stop/sign-out cleanup. ([#5](https://github.com/12529572-Canada-Inc/phantom/issues/5))
 - Added a cosmic-themed mobile map centered on the player's foreground
   location, with permission and service recovery states, a position marker,
   and an accessible recenter control. ([#4](https://github.com/12529572-Canada-Inc/phantom/issues/4))

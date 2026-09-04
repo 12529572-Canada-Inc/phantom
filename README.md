@@ -188,6 +188,40 @@ and [native deep-linking guide](https://supabase.com/docs/guides/auth/native-mob
 for dashboard details. If email confirmation is enabled, confirmation links use
 the same app callback.
 
+### Background location testing
+
+Background tracking is off until a signed-in player selects **Enable** on the
+map and grants both foreground and background location access. Phantom stores
+one latest position per player in a separate self-only table; stopping tracking
+or signing out removes that row. Android shows a persistent notification and
+iOS shows the background location indicator while tracking is active.
+
+Expo Go cannot exercise the production background-location behavior. Build and
+run a development client on a physical device instead:
+
+```bash
+pnpm --filter @phantom/mobile exec expo run:ios --device
+pnpm --filter @phantom/mobile exec expo run:android --device
+```
+
+For each platform:
+
+1. Sign in, open the map, and confirm **Background signal** starts off.
+2. Select **Enable** and grant foreground access followed by background access.
+   Android 11 and newer may open the app's system settings for the second step.
+3. Move the device and confirm the marker updates and the signed-in player's
+   `player_locations.updated_at` value advances.
+4. Background the app for at least 30 seconds and confirm updates continue. The
+   five-second options are minimum requests; the operating system may throttle
+   or batch delivery.
+5. Select **Stop** and confirm the row is deleted. Enable it again, sign out,
+   and confirm the native task stops and the row is deleted before the session
+   clears.
+
+See Expo's [Location background-permission and task documentation](https://docs.expo.dev/versions/latest/sdk/location/#background-location)
+for platform constraints and [TaskManager documentation](https://docs.expo.dev/versions/latest/sdk/task-manager/#taskmanagerdefinetasktaskname-taskexecutor)
+for the required module-scope task definition.
+
 ## Railway deployment
 
 The production API is defined with Railway Infrastructure as Code in
