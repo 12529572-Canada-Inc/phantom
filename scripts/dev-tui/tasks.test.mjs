@@ -21,6 +21,14 @@ test('physical-device Expo task does not request a simulator or emulator', () =>
   ])
 })
 
+test('development seed is a fixed local-only action', () => {
+  const seed = taskById.get('database:seed')
+
+  assert.equal(seed.action.type, 'local-development-seed')
+  assert.deepEqual(seed.requires, ['pnpm', 'docker', 'supabase', 'psql'])
+  assert.match(seed.notice, /local Phantom/i)
+})
+
 test('task IDs are unique and actions do not invoke a shell', () => {
   assert.equal(new Set(tasks.map((task) => task.id)).size, tasks.length)
 

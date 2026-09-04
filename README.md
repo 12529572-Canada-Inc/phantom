@@ -106,6 +106,13 @@ Other commands:
 | `pnpm docker:status` | Show API and local Supabase status            |
 | `pnpm docker:config` | Validate the Compose configuration            |
 
+From `pnpm dev:tui`, choose **Database → Seed development data** to add
+repeatable fictional accounts, teams, zones, and capture history to Phantom's
+local Supabase project. It preserves unrelated data and writes randomized test
+login credentials to the ignored `.local/seed-accounts.json` file. See
+[`docs/development-seed.md`](docs/development-seed.md) for fixture and safety
+details.
+
 Routine menu actions delegate Docker lifecycle work to these commands. The
 destructive nuke-and-pave task uses its own fixed, guarded command plan so its
 full scope is visible in `--dry-run` output.

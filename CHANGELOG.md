@@ -23,6 +23,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added a guarded TUI nuke-and-pave workflow that recreates the project-scoped
   Docker API stack and local Supabase data from scratch after an exact typed
   confirmation, with dry-run output and local-target safety checks.
+- Added an idempotent, local-only TUI database seed with fictional accounts,
+  teams, zones, capture history, and protected randomized login credentials.
 - Added a non-root, multi-stage API image, a one-command Docker and local
   Supabase development stack, container health checks, and CI smoke testing.
 - Documented Docker environment handling and Expo API URLs for simulators,

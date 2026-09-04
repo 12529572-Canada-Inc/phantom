@@ -7,6 +7,7 @@ import {
 import { confirmDestructiveAction } from './guards.mjs'
 import { localSupabaseEndpoints } from './local-config.mjs'
 import { createNukeAndPavePlan, runNukeAndPave } from './local-stack.mjs'
+import { seedLocalDevelopment } from './development-seed.mjs'
 import {
   formatCommand,
   redactSecrets,
@@ -61,6 +62,26 @@ const runAction = async (task, options) => {
         return 0
       }
       return printDatabaseEndpoints(options.cwd)
+    case 'local-development-seed': {
+      if (options.dryRun) {
+        console.log(
+          '[dry-run] upsert fixed development fixtures into local Phantom Supabase',
+        )
+        return 0
+      }
+      try {
+        const seeded = await seedLocalDevelopment({ cwd: options.cwd })
+        console.log(
+          `Seeded ${seeded.accounts} accounts, ${seeded.teams} teams, ${seeded.zones} zones, and ${seeded.captures} captures.`,
+        )
+        console.log(`Test login credentials: ${seeded.credentialFile}`)
+        return 0
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error)
+        console.error(`Local development seed failed: ${message}`)
+        return 1
+      }
+    }
     case 'local-stack-rebuild': {
       if (options.dryRun) {
         for (const step of createNukeAndPavePlan(options.cwd)) {

@@ -35,7 +35,7 @@ export const tasks = Object.freeze([
     group: 'Environment',
     label: 'Check prerequisites',
     description:
-      'Check Node, pnpm, Docker, Supabase CLI, and optional API environment variables.',
+      'Check Node, pnpm, Docker, Supabase CLI, psql, and optional API environment variables.',
     requires: [],
     action: { type: 'environment-check' },
   }),
@@ -169,6 +169,17 @@ export const tasks = Object.freeze([
     description: 'Show local API and Studio endpoints without printing keys.',
     requires: ['pnpm', 'supabase'],
     action: { type: 'database-status' },
+  }),
+  task({
+    id: 'database:seed',
+    group: 'Database',
+    label: 'Seed development data',
+    description:
+      'Idempotently add fictional accounts, teams, zones, and capture history to local Phantom Supabase.',
+    requires: ['pnpm', 'docker', 'supabase', 'psql'],
+    notice:
+      'Seeds only local Phantom Supabase. Existing unrelated data is preserved.',
+    action: { type: 'local-development-seed' },
   }),
   task({
     id: 'quality:format',
