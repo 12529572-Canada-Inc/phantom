@@ -2,7 +2,7 @@ begin;
 
 create extension if not exists pgtap with schema extensions;
 
-select plan(15);
+select plan(16);
 
 select has_table(
   'public',
@@ -138,7 +138,7 @@ select throws_ok(
 update public.player_locations
 set latitude = 43.6533,
     longitude = -79.3833,
-    updated_at = now()
+    updated_at = '2000-01-01 00:00:00+00'
 where player_id = '33333333-3333-3333-3333-333333333333';
 
 select is(
@@ -149,6 +149,15 @@ select is(
   ),
   43.6533::double precision,
   'A player can update their own location.'
+);
+
+select ok(
+  (
+    select updated_at > now() - interval '1 minute'
+    from public.player_locations
+    where player_id = '33333333-3333-3333-3333-333333333333'
+  ),
+  'The database controls the location freshness timestamp.'
 );
 
 update public.player_locations

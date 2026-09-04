@@ -33,14 +33,14 @@ foreground updates and controls to the map.
 
 ### Phase 2: Background tracking lifecycle
 
-- [ ] Add Expo TaskManager and native background-location configuration.
-- [ ] Add tested permission, start, stop, validation, persistence, and cleanup
+- [x] Add Expo TaskManager and native background-location configuration.
+- [x] Add tested permission, start, stop, validation, persistence, and cleanup
       logic.
-- [ ] Stop tracking and clear the latest position before sign-out.
+- [x] Stop tracking and clear the latest position before sign-out.
 
 ### Checkpoint: Tracking core
 
-- [ ] Focused mobile tests, lint, and type-check pass.
+- [x] Focused mobile tests, lint, and type-check pass.
 
 ### Phase 3: Live map and handoff
 

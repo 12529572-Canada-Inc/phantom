@@ -18,14 +18,14 @@
 
 **Acceptance criteria:**
 
-- [ ] Tracking starts only after foreground and background permission grants.
-- [ ] The background handler validates and persists only the newest fix.
-- [ ] Disable and sign-out stop updates and clear the latest row.
+- [x] Tracking starts only after foreground and background permission grants.
+- [x] The background handler validates and persists only the newest fix.
+- [x] Disable and sign-out stop updates and clear the latest row.
 
 **Verification:**
 
-- [ ] `pnpm --filter @phantom/mobile test`
-- [ ] `pnpm --filter @phantom/mobile type-check`
+- [x] `pnpm --filter @phantom/mobile test`
+- [x] `pnpm --filter @phantom/mobile type-check`
 
 **Dependencies:** Task 1
 

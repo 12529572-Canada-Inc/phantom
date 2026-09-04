@@ -1,6 +1,7 @@
 import { Stack } from 'expo-router'
 
 import { AuthProvider } from '../src/auth/auth-context'
+import '../src/location/background-location-task'
 
 export default function RootLayout() {
   return (
