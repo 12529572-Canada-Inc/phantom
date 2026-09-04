@@ -4,4 +4,7 @@ dist/
 .env
 .env.local
 .expo/
+supabase/.branches/
+supabase/.temp/
 *.log
+/.local/

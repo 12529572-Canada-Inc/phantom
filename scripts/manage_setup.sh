@@ -47,9 +47,9 @@ status() {
   compose ps
   if pnpm exec supabase status >/dev/null 2>&1; then
     printf 'Local Supabase is running.\n'
-    printf 'API: http://127.0.0.1:54321\n'
-    printf 'Studio: http://127.0.0.1:54323\n'
-    printf 'Database: 127.0.0.1:54322\n'
+    printf 'API: http://127.0.0.1:55321\n'
+    printf 'Studio: http://127.0.0.1:55323\n'
+    printf 'Database: 127.0.0.1:55322\n'
     printf 'Keys are intentionally hidden.\n'
   else
     printf 'Local Supabase is not running.\n'

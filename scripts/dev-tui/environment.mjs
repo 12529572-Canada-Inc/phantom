@@ -40,6 +40,7 @@ export const inspectPrerequisites = () => {
     ? version('docker', ['compose', 'version', '--short'])
     : null
   const supabaseVersion = installedSupabaseVersion()
+  const psqlVersion = version('psql', ['--version'])
 
   return {
     node: {
@@ -66,6 +67,11 @@ export const inspectPrerequisites = () => {
       available: supabaseVersion !== null,
       detail: supabaseVersion ?? 'not found',
       guidance: 'Run pnpm install to install the workspace Supabase CLI.',
+    },
+    psql: {
+      available: psqlVersion !== null,
+      detail: psqlVersion ?? 'not found',
+      guidance: 'Install the PostgreSQL client tools (psql).',
     },
   }
 }

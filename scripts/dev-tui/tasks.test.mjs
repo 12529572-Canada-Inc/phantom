@@ -3,6 +3,32 @@ import test from 'node:test'
 import { confirmDestructiveAction, isLocalOnlyAction } from './guards.mjs'
 import { taskById, tasks } from './tasks.mjs'
 
+for (const platform of ['ios', 'android']) {
+  test(`Expo ${platform} task requests a platform launch`, () => {
+    assert.deepEqual(taskById.get(`services:expo:${platform}`).action, {
+      type: 'external',
+      command: 'pnpm',
+      args: ['--filter', '@phantom/mobile', 'dev', `--${platform}`],
+    })
+  })
+}
+
+test('physical-device Expo task does not request a simulator or emulator', () => {
+  assert.deepEqual(taskById.get('services:expo:device').action.args, [
+    '--filter',
+    '@phantom/mobile',
+    'dev',
+  ])
+})
+
+test('development seed is a fixed local-only action', () => {
+  const seed = taskById.get('database:seed')
+
+  assert.equal(seed.action.type, 'local-development-seed')
+  assert.deepEqual(seed.requires, ['pnpm', 'docker', 'supabase', 'psql'])
+  assert.match(seed.notice, /local Phantom/i)
+})
+
 test('task IDs are unique and actions do not invoke a shell', () => {
   assert.equal(new Set(tasks.map((task) => task.id)).size, tasks.length)
 
@@ -25,8 +51,20 @@ test('database reset is fixed to the local project and requires confirmation', (
   assert.ok(reset.destructive)
   assert.equal(isLocalOnlyAction(reset), true)
   assert.deepEqual(reset.action.args.slice(-2), ['reset', '--local'])
-  assert.match(reset.destructive.target, /127\.0\.0\.1:54322/)
+  assert.match(reset.destructive.target, /127\.0\.0\.1:55322/)
   assert.equal(reset.destructive.confirmation, 'reset local phantom')
+})
+
+test('nuke and pave is a fixed local-stack action with explicit confirmation', () => {
+  const rebuild = taskById.get('services:nuke')
+
+  assert.ok(rebuild.destructive)
+  assert.equal(rebuild.action.type, 'local-stack-rebuild')
+  assert.equal(isLocalOnlyAction(rebuild), true)
+  assert.match(rebuild.destructive.target, /Compose project \"phantom\"/)
+  assert.match(rebuild.destructive.target, /Supabase project \"phantom\"/)
+  assert.equal(rebuild.destructive.confirmation, 'nuke and pave phantom')
+  assert.match(rebuild.notice, /permanently deletes/i)
 })
 
 test('destructive actions that are not provably local are refused', async () => {
@@ -43,6 +81,52 @@ test('destructive actions that are not provably local are refused', async () => 
   await assert.rejects(
     confirmDestructiveAction(unsafeReset),
     /not provably local-only/,
+  )
+})
+
+test('the local stack action is rejected when its fixed action changes', () => {
+  const rebuild = taskById.get('services:nuke')
+
+  assert.equal(
+    isLocalOnlyAction({
+      ...rebuild,
+      action: {
+        type: 'external',
+        command: 'docker',
+        args: ['system', 'prune'],
+      },
+    }),
+    false,
+  )
+})
+
+test('task definitions and all nested action inputs are immutable', () => {
+  const rebuild = taskById.get('services:nuke')
+  const expo = taskById.get('services:expo:ios')
+  const prePr = taskById.get('quality:pre-pr')
+
+  assert.equal(Object.isFrozen(rebuild), true)
+  assert.equal(Object.isFrozen(rebuild.action), true)
+  assert.equal(Object.isFrozen(rebuild.destructive), true)
+  assert.equal(Object.isFrozen(expo.action.args), true)
+  assert.equal(Object.isFrozen(prePr.action.steps), true)
+  assert.ok(prePr.action.steps.every((step) => Object.isFrozen(step)))
+  assert.ok(prePr.action.steps.every((step) => Object.isFrozen(step.args)))
+  assert.throws(() => expo.action.args.push('--clear'), TypeError)
+})
+
+test('destructive confirmation requires interactive input and output', async () => {
+  const output = {
+    isTTY: false,
+    write() {},
+  }
+
+  assert.equal(
+    await confirmDestructiveAction(taskById.get('services:nuke'), {
+      input: { isTTY: true },
+      output,
+    }),
+    false,
   )
 })
 

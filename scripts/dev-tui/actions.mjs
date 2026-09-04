@@ -5,6 +5,9 @@ import {
   printEnvironmentReport,
 } from './environment.mjs'
 import { confirmDestructiveAction } from './guards.mjs'
+import { localSupabaseEndpoints } from './local-config.mjs'
+import { createNukeAndPavePlan, runNukeAndPave } from './local-stack.mjs'
+import { seedLocalDevelopment } from './development-seed.mjs'
 import {
   formatCommand,
   redactSecrets,
@@ -25,9 +28,9 @@ const printDatabaseEndpoints = (cwd) => {
   }
 
   console.log('Local Supabase is running.')
-  console.log('  API: http://127.0.0.1:54321')
-  console.log('  Studio: http://127.0.0.1:54323')
-  console.log('  Database: 127.0.0.1:54322')
+  console.log(`  API: ${localSupabaseEndpoints.api}`)
+  console.log(`  Studio: ${localSupabaseEndpoints.studio}`)
+  console.log(`  Database: ${localSupabaseEndpoints.database}`)
   console.log('  Keys are intentionally hidden.')
   return 0
 }
@@ -59,6 +62,52 @@ const runAction = async (task, options) => {
         return 0
       }
       return printDatabaseEndpoints(options.cwd)
+    case 'local-development-seed': {
+      if (options.dryRun) {
+        console.log(
+          '[dry-run] upsert fixed development fixtures into local Phantom Supabase',
+        )
+        return 0
+      }
+      try {
+        const seeded = await seedLocalDevelopment({ cwd: options.cwd })
+        console.log(
+          `Seeded ${seeded.accounts} accounts, ${seeded.teams} teams, ${seeded.zones} zones, and ${seeded.captures} captures.`,
+        )
+        console.log(`Test login credentials: ${seeded.credentialFile}`)
+        return 0
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error)
+        console.error(`Local development seed failed: ${message}`)
+        return 1
+      }
+    }
+    case 'local-stack-rebuild': {
+      if (options.dryRun) {
+        for (const step of createNukeAndPavePlan(options.cwd)) {
+          console.log(`[dry-run] ${formatCommand(step)}`)
+        }
+        return 0
+      }
+
+      try {
+        const result = await runNukeAndPave({
+          cwd: options.cwd,
+          filterOutput: options.filterOutput,
+        })
+        for (const stepResult of result.results) {
+          const marker = stepResult.exitCode === 0 ? '✓' : '✗'
+          console.log(
+            `${marker} ${formatCommand(stepResult.step)} (exit ${stepResult.exitCode})`,
+          )
+        }
+        return result.exitCode
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error)
+        console.error(`Safety check failed: ${message}`)
+        return 78
+      }
+    }
     case 'sequence': {
       if (options.dryRun) {
         for (const step of task.action.steps) {
@@ -88,18 +137,11 @@ export const executeTask = async (
   {
     cwd,
     dryRun = false,
-    prerequisites = inspectPrerequisites(),
+    prerequisites,
     confirm = confirmDestructiveAction,
+    inspect = inspectPrerequisites,
   } = {},
 ) => {
-  const missing = missingRequirements(task, prerequisites)
-  if (missing.length > 0 && !dryRun) {
-    console.error(
-      `Cannot run ${task.id}: missing ${missing.join(', ')}. Run environment:check for setup guidance.`,
-    )
-    return 69
-  }
-
   if (task.notice) {
     console.log(task.notice)
   }
@@ -109,12 +151,22 @@ export const executeTask = async (
     return 64
   }
 
+  const prerequisiteStatuses =
+    prerequisites ?? (task.destructive && dryRun ? {} : inspect())
+  const missing = missingRequirements(task, prerequisiteStatuses)
+  if (missing.length > 0 && !dryRun) {
+    console.error(
+      `Cannot run ${task.id}: missing ${missing.join(', ')}. Run environment:check for setup guidance.`,
+    )
+    return 69
+  }
+
   console.log(`\n${task.label}`)
   const exitCode = await runAction(task, {
     cwd,
     dryRun,
     filterOutput: redactSecrets,
-    prerequisites,
+    prerequisites: prerequisiteStatuses,
   })
   const summary =
     exitCode === 0

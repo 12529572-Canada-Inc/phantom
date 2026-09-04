@@ -9,14 +9,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Added a cosmic-themed mobile map centered on the player's foreground
+  location, with permission and service recovery states, a position marker,
+  and an accessible recenter control. ([#4](https://github.com/12529572-Canada-Inc/phantom/issues/4))
 - Added Supabase email/password and Google authentication to the Expo app with
   guarded routes, encrypted SecureStore session persistence, deep-link callback
   handling, accessible loading/error states, and sign-out. ([#3](https://github.com/12529572-Canada-Inc/phantom/issues/3))
 - Added Railway Infrastructure as Code and a production API deployment runbook
   covering Supabase secret handling and `/health` verification. ([#2](https://github.com/12529572-Canada-Inc/phantom/issues/2))
-- Added an interactive development task menu with headless task IDs,
+- Added a compact category-first development task menu with headless task IDs,
   prerequisite checks, safe local service and database workflows, repository
   quality checks, typed reset confirmation, and process-runner unit tests.
+- Added a guarded TUI nuke-and-pave workflow that recreates the project-scoped
+  Docker API stack and local Supabase data from scratch after an exact typed
+  confirmation, with dry-run output and local-target safety checks.
+- Added an idempotent, local-only TUI database seed with fictional accounts,
+  teams, zones, capture history, and protected randomized login credentials.
 - Added a non-root, multi-stage API image, a one-command Docker and local
   Supabase development stack, container health checks, and CI smoke testing.
 - Documented Docker environment handling and Expo API URLs for simulators,
@@ -42,6 +50,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fixed mobile Supabase configuration being omitted from Expo bundles by using
+  static public environment references, with a bundle-transform regression test.
+- Fixed the TUI's iOS simulator and Android emulator actions to request a
+  platform launch instead of only starting Metro.
+- Fixed local stack startup and nuke-and-pave failures when another Supabase
+  project is running by assigning Phantom a dedicated port block, refusing
+  unrelated Docker port conflicts before teardown, and resuming TUI input
+  after typed destructive confirmation.
 - Fixed the initial Supabase migration so it applies from an empty database,
   installs required extensions outside the public schema, grants only the
   API-role privileges required by its RLS policies, and indexes zone geography

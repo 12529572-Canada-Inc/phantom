@@ -1,10 +1,35 @@
+import { localDatabaseTarget, localStackTarget } from './local-config.mjs'
+
 const external = (command, args) => ({
   type: 'external',
   command,
   args,
 })
 
-const task = (definition) => Object.freeze(definition)
+const freezeAction = (action) => {
+  const args = action.args
+    ? { args: Object.freeze([...action.args]) }
+    : undefined
+
+  if (action.type === 'sequence') {
+    return Object.freeze({
+      ...action,
+      steps: Object.freeze(action.steps.map((step) => freezeAction(step))),
+    })
+  }
+
+  return Object.freeze({ ...action, ...args })
+}
+
+const task = (definition) =>
+  Object.freeze({
+    ...definition,
+    requires: Object.freeze([...definition.requires]),
+    action: freezeAction(definition.action),
+    ...(definition.destructive
+      ? { destructive: Object.freeze({ ...definition.destructive }) }
+      : {}),
+  })
 
 export const tasks = Object.freeze([
   task({
@@ -12,7 +37,7 @@ export const tasks = Object.freeze([
     group: 'Environment',
     label: 'Check prerequisites',
     description:
-      'Check Node, pnpm, Docker, Supabase CLI, and optional API environment variables.',
+      'Check Node, pnpm, Docker, Supabase CLI, psql, and optional API environment variables.',
     requires: [],
     action: { type: 'environment-check' },
   }),
@@ -31,6 +56,21 @@ export const tasks = Object.freeze([
     description: 'Stop only Phantom-owned Docker and Supabase services.',
     requires: ['pnpm', 'docker', 'supabase'],
     action: external('pnpm', ['docker:stop']),
+  }),
+  task({
+    id: 'services:nuke',
+    group: 'Services',
+    label: 'Nuke and pave local stack',
+    description:
+      'Permanently replace Phantom Docker resources and local Supabase data.',
+    requires: ['pnpm', 'docker', 'supabase'],
+    notice:
+      'WARNING: This permanently deletes local Supabase data and the local Docker Compose project "phantom" (containers, volumes, and network), then rebuilds both from scratch. Source files, dependencies, environment files, hosted Supabase, and unrelated Docker projects are preserved.',
+    destructive: {
+      target: localStackTarget,
+      confirmation: 'nuke and pave phantom',
+    },
+    action: { type: 'local-stack-rebuild' },
   }),
   task({
     id: 'services:status',
@@ -56,7 +96,7 @@ export const tasks = Object.freeze([
     description: 'Launch Expo with API guidance for the iOS simulator.',
     requires: ['pnpm'],
     notice: 'Expo API URL: http://localhost:3001',
-    action: external('pnpm', ['--filter', '@phantom/mobile', 'dev']),
+    action: external('pnpm', ['--filter', '@phantom/mobile', 'dev', '--ios']),
   }),
   task({
     id: 'services:expo:android',
@@ -65,7 +105,12 @@ export const tasks = Object.freeze([
     description: 'Launch Expo with API guidance for the Android emulator.',
     requires: ['pnpm'],
     notice: 'Expo API URL: http://10.0.2.2:3001',
-    action: external('pnpm', ['--filter', '@phantom/mobile', 'dev']),
+    action: external('pnpm', [
+      '--filter',
+      '@phantom/mobile',
+      'dev',
+      '--android',
+    ]),
   }),
   task({
     id: 'services:expo:device',
@@ -114,7 +159,7 @@ export const tasks = Object.freeze([
     description: 'Recreate only the local Phantom database from migrations.',
     requires: ['pnpm', 'supabase'],
     destructive: {
-      target: 'local Supabase project "phantom" at 127.0.0.1:54322',
+      target: localDatabaseTarget,
       confirmation: 'reset local phantom',
     },
     action: external('pnpm', ['exec', 'supabase', 'db', 'reset', '--local']),
@@ -126,6 +171,17 @@ export const tasks = Object.freeze([
     description: 'Show local API and Studio endpoints without printing keys.',
     requires: ['pnpm', 'supabase'],
     action: { type: 'database-status' },
+  }),
+  task({
+    id: 'database:seed',
+    group: 'Database',
+    label: 'Seed development data',
+    description:
+      'Idempotently add fictional accounts, teams, zones, and capture history to local Phantom Supabase.',
+    requires: ['pnpm', 'docker', 'supabase', 'psql'],
+    notice:
+      'Seeds only local Phantom Supabase. Existing unrelated data is preserved.',
+    action: { type: 'local-development-seed' },
   }),
   task({
     id: 'quality:format',

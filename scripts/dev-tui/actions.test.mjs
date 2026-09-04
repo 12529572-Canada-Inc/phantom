@@ -63,3 +63,35 @@ writeFileSync(process.env.PHANTOM_TEST_CWD_MARKER, process.cwd())
     rmSync(temporaryDirectory, { recursive: true, force: true })
   }
 })
+
+test('destructive cancellation happens before prerequisite inspection', async () => {
+  let inspected = false
+
+  const exitCode = await executeTask(taskById.get('services:nuke'), {
+    cwd: process.cwd(),
+    confirm: async () => false,
+    inspect: () => {
+      inspected = true
+      return {}
+    },
+  })
+
+  assert.equal(exitCode, 64)
+  assert.equal(inspected, false)
+})
+
+test('destructive dry runs do not inspect prerequisites or execute commands', async () => {
+  let inspected = false
+
+  const exitCode = await executeTask(taskById.get('services:nuke'), {
+    cwd: process.cwd(),
+    dryRun: true,
+    inspect: () => {
+      inspected = true
+      return {}
+    },
+  })
+
+  assert.equal(exitCode, 0)
+  assert.equal(inspected, false)
+})

@@ -12,7 +12,7 @@
       [
         "expo-location",
         {
-          "locationAlwaysAndWhenInUsePermission": "Allow Phantom to use your location to show nearby zones."
+          "locationWhenInUsePermission": "Allow Phantom to use your location to center the map and show your position."
         }
       ]
     ]
