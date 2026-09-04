@@ -1,7 +1,7 @@
 -- Store only each player's latest precise location outside the publicly
 -- readable players table.
 create table public.player_locations (
-  player_id uuid primary key references public.players(id) on delete cascade,
+  player_id uuid primary key references auth.users(id) on delete cascade,
   latitude double precision not null check (latitude between -90 and 90),
   longitude double precision not null check (longitude between -180 and 180),
   updated_at timestamptz default now() not null

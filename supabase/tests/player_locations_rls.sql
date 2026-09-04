@@ -2,7 +2,7 @@ begin;
 
 create extension if not exists pgtap with schema extensions;
 
-select plan(16);
+select plan(18);
 
 select has_table(
   'public',
@@ -41,6 +41,14 @@ values
   (
     '44444444-4444-4444-4444-444444444444',
     'location-bob@test.example',
+    '{}'::jsonb,
+    '00000000-0000-0000-0000-000000000000',
+    'authenticated',
+    'authenticated'
+  ),
+  (
+    '55555555-5555-5555-5555-555555555555',
+    'location-charlie@test.example',
     '{}'::jsonb,
     '00000000-0000-0000-0000-000000000000',
     'authenticated',
@@ -228,6 +236,26 @@ select is(
   ),
   43.6426::double precision,
   'Denied cross-player changes leave the other location intact.'
+);
+
+select tests.act_as('55555555-5555-5555-5555-555555555555');
+
+insert into public.player_locations (player_id, latitude, longitude)
+values ('55555555-5555-5555-5555-555555555555', 43.6532, -79.3832);
+
+select is(
+  (select count(*)::integer from public.player_locations),
+  1,
+  'An authenticated user can store a location before a player profile exists.'
+);
+
+delete from public.player_locations
+where player_id = '55555555-5555-5555-5555-555555555555';
+
+select is(
+  (select count(*)::integer from public.player_locations),
+  0,
+  'An authenticated user without a player profile can clear their location.'
 );
 
 select * from finish();
