@@ -3,6 +3,24 @@ import test from 'node:test'
 import { confirmDestructiveAction, isLocalOnlyAction } from './guards.mjs'
 import { taskById, tasks } from './tasks.mjs'
 
+for (const platform of ['ios', 'android']) {
+  test(`Expo ${platform} task requests a platform launch`, () => {
+    assert.deepEqual(taskById.get(`services:expo:${platform}`).action, {
+      type: 'external',
+      command: 'pnpm',
+      args: ['--filter', '@phantom/mobile', 'dev', `--${platform}`],
+    })
+  })
+}
+
+test('physical-device Expo task does not request a simulator or emulator', () => {
+  assert.deepEqual(taskById.get('services:expo:device').action.args, [
+    '--filter',
+    '@phantom/mobile',
+    'dev',
+  ])
+})
+
 test('task IDs are unique and actions do not invoke a shell', () => {
   assert.equal(new Set(tasks.map((task) => task.id)).size, tasks.length)
 

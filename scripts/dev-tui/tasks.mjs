@@ -94,7 +94,7 @@ export const tasks = Object.freeze([
     description: 'Launch Expo with API guidance for the iOS simulator.',
     requires: ['pnpm'],
     notice: 'Expo API URL: http://localhost:3001',
-    action: external('pnpm', ['--filter', '@phantom/mobile', 'dev']),
+    action: external('pnpm', ['--filter', '@phantom/mobile', 'dev', '--ios']),
   }),
   task({
     id: 'services:expo:android',
@@ -103,7 +103,12 @@ export const tasks = Object.freeze([
     description: 'Launch Expo with API guidance for the Android emulator.',
     requires: ['pnpm'],
     notice: 'Expo API URL: http://10.0.2.2:3001',
-    action: external('pnpm', ['--filter', '@phantom/mobile', 'dev']),
+    action: external('pnpm', [
+      '--filter',
+      '@phantom/mobile',
+      'dev',
+      '--android',
+    ]),
   }),
   task({
     id: 'services:expo:device',

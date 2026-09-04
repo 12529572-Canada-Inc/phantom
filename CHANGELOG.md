@@ -48,6 +48,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fixed the TUI's iOS simulator and Android emulator actions to request a
+  platform launch instead of only starting Metro.
 - Fixed local stack startup and nuke-and-pave failures when another Supabase
   project is running by assigning Phantom a dedicated port block, refusing
   unrelated Docker port conflicts before teardown, and resuming TUI input
