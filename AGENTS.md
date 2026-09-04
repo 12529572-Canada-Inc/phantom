@@ -137,6 +137,10 @@ required tool or service was unavailable.
 - Open pull requests against `develop`. Include a summary, linked issue,
   verification evidence, manual test steps, and any environment, migration,
   permission, security, or deployment impact.
+- Write pull request bodies as rendered GitHub Markdown with real line breaks.
+  Prefer `gh pr create --body-file <markdown-file>` or
+  `gh pr edit --body-file <markdown-file>`; never pass escaped `\\n` sequences
+  as the description. Verify the stored body after creating or updating a PR.
 - Update `CHANGELOG.md` under `## [Unreleased]` for user-visible changes and
   notable architecture, security, deployment, or developer-tooling changes.
   Follow Keep a Changelog headings such as `Added`, `Changed`, and `Fixed`.
