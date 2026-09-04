@@ -48,6 +48,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fixed mobile Supabase configuration being omitted from Expo bundles by using
+  static public environment references, with a bundle-transform regression test.
 - Fixed the TUI's iOS simulator and Android emulator actions to request a
   platform launch instead of only starting Metro.
 - Fixed local stack startup and nuke-and-pave failures when another Supabase
