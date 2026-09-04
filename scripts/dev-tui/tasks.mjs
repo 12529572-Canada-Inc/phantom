@@ -7,16 +7,18 @@ const external = (command, args) => ({
 })
 
 const freezeAction = (action) => {
+  const args = action.args
+    ? { args: Object.freeze([...action.args]) }
+    : undefined
+
   if (action.type === 'sequence') {
     return Object.freeze({
       ...action,
-      steps: Object.freeze(
-        action.steps.map((step) => Object.freeze({ ...step })),
-      ),
+      steps: Object.freeze(action.steps.map((step) => freezeAction(step))),
     })
   }
 
-  return Object.freeze({ ...action })
+  return Object.freeze({ ...action, ...args })
 }
 
 const task = (definition) =>

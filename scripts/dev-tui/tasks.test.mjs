@@ -100,12 +100,19 @@ test('the local stack action is rejected when its fixed action changes', () => {
   )
 })
 
-test('task definitions and nested destructive actions are immutable', () => {
+test('task definitions and all nested action inputs are immutable', () => {
   const rebuild = taskById.get('services:nuke')
+  const expo = taskById.get('services:expo:ios')
+  const prePr = taskById.get('quality:pre-pr')
 
   assert.equal(Object.isFrozen(rebuild), true)
   assert.equal(Object.isFrozen(rebuild.action), true)
   assert.equal(Object.isFrozen(rebuild.destructive), true)
+  assert.equal(Object.isFrozen(expo.action.args), true)
+  assert.equal(Object.isFrozen(prePr.action.steps), true)
+  assert.ok(prePr.action.steps.every((step) => Object.isFrozen(step)))
+  assert.ok(prePr.action.steps.every((step) => Object.isFrozen(step.args)))
+  assert.throws(() => expo.action.args.push('--clear'), TypeError)
 })
 
 test('destructive confirmation requires interactive input and output', async () => {

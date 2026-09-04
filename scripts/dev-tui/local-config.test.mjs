@@ -10,10 +10,21 @@ const supabaseConfig = readFileSync(
   'utf8',
 )
 
-const section = (name) => {
-  const remainder = supabaseConfig.split(`[${name}]\n`)[1]
-  return remainder?.split('\n[')[0]
+const section = (name, config = supabaseConfig) => {
+  const escapedName = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+  const remainder = config.split(new RegExp(`\\[${escapedName}\\]\\r?\\n`))[1]
+  return remainder?.split(/\r?\n\[/)[0]
 }
+
+test('Supabase sections parse with LF and CRLF line endings', () => {
+  const config = '[api]\nport = 55321\n\n[db]\nport = 55322\n'
+
+  assert.equal(section('api', config), 'port = 55321\n')
+  assert.equal(
+    section('api', config.replaceAll('\n', '\r\n')),
+    'port = 55321\r\n',
+  )
+})
 
 test('Phantom uses a dedicated Supabase port block', () => {
   assert.deepEqual(localSupabasePorts, {
