@@ -6,6 +6,9 @@
     "orientation": "portrait",
     "scheme": "phantom",
     "platforms": ["ios", "android"],
+    "ios": {
+      "bundleIdentifier": "ca.12529572.phantom"
+    },
     "plugins": [
       "expo-router",
       "expo-secure-store",
