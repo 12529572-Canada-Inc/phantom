@@ -10,6 +10,8 @@ import {
 } from 'react'
 import { AppState } from 'react-native'
 
+import { stopPlayerLocationTracking } from '../location/native-location-tracking'
+import { signOutWithLocationCleanup } from './sign-out'
 import { supabase, supabaseConfig } from './supabase'
 
 type AuthContextValue = {
@@ -79,13 +81,16 @@ export function AuthProvider({ children }: PropsWithChildren) {
 
   const signOut = useCallback(async () => {
     if (!supabase) return false
+    const client = supabase
 
-    try {
-      const { error } = await supabase.auth.signOut()
-      return !error
-    } catch {
-      return false
-    }
+    return signOutWithLocationCleanup(stopPlayerLocationTracking, async () => {
+      try {
+        const { error } = await client.auth.signOut()
+        return !error
+      } catch {
+        return false
+      }
+    })
   }, [])
 
   const value = useMemo<AuthContextValue>(

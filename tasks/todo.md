@@ -1,58 +1,57 @@
-# Issue #3 task checklist
+# Issue #5 task checklist
 
-## Task 1: Secure Supabase client foundation
+## Task 1: Protect the latest player position
 
 **Acceptance criteria:**
 
-- [x] Expo-compatible SecureStore, WebBrowser, and URL polyfill dependencies are
-      installed.
-- [x] Supabase uses chunked SecureStore persistence.
-- [x] Missing or malformed public configuration is reported safely.
+- [x] A player has at most one stored latitude/longitude pair.
+- [x] Anonymous users cannot access location rows.
+- [x] Authenticated players cannot access another player's location row.
+
+**Verification:**
+
+- [x] `pnpm exec supabase test db supabase/tests/player_locations_rls.sql`
+
+**Dependencies:** None
+
+## Task 2: Add background tracking lifecycle
+
+**Acceptance criteria:**
+
+- [x] Tracking starts only after foreground and background permission grants.
+- [x] The background handler validates and persists only the newest fix.
+- [x] Disable and sign-out stop updates and clear the latest row.
 
 **Verification:**
 
 - [x] `pnpm --filter @phantom/mobile test`
-- [x] `pnpm --filter @phantom/mobile type-check`
-
-**Dependencies:** None
-
-## Task 2: Session-aware routing
-
-**Acceptance criteria:**
-
-- [x] One provider restores and subscribes to Supabase auth state.
-- [x] Tabs reject unauthenticated access.
-- [x] The app entry route resolves loading, signed-out, and signed-in states.
-
-**Verification:**
-
-- [x] `pnpm --filter @phantom/mobile lint`
 - [x] `pnpm --filter @phantom/mobile type-check`
 
 **Dependencies:** Task 1
 
-## Task 3: Email and Google authentication
+## Task 3: Update the live map experience
 
 **Acceptance criteria:**
 
-- [x] Email sign-up/sign-in validate inputs and present safe errors.
-- [x] Google OAuth handles success and cancellation through the app scheme.
-- [x] A signed-in player can sign out.
+- [x] The player marker updates from foreground location events.
+- [x] The map exposes accessible opt-in, active, denied, error, and stop states.
+- [x] Permission and foreground-service copy explain continuous tracking.
 
 **Verification:**
 
-- [x] `pnpm --filter @phantom/mobile test`
-- [ ] Manual flow with configured Supabase project
+- [x] `pnpm --filter @phantom/mobile lint`
+- [x] `pnpm --filter @phantom/mobile build`
+- [ ] Manual physical-device development-build test on iOS and Android
 
-**Dependencies:** Tasks 1 and 2
+**Dependencies:** Task 2
 
-## Task 4: Documentation and repository verification
+## Task 4: Finish verification and handoff
 
 **Acceptance criteria:**
 
-- [x] Environment/provider/redirect setup is documented.
-- [x] `CHANGELOG.md` records the user-visible feature.
+- [x] `CHANGELOG.md` records the user-visible and privacy-sensitive change.
 - [x] Relevant repository checks pass.
+- [x] Remaining manual verification is documented precisely.
 
 **Verification:**
 

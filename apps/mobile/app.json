@@ -6,12 +6,19 @@
     "orientation": "portrait",
     "scheme": "phantom",
     "platforms": ["ios", "android"],
+    "ios": {
+      "bundleIdentifier": "ca.12529572.phantom"
+    },
     "plugins": [
       "expo-router",
       "expo-secure-store",
       [
         "expo-location",
         {
+          "isAndroidBackgroundLocationEnabled": true,
+          "isAndroidForegroundServiceEnabled": true,
+          "isIosBackgroundLocationEnabled": true,
+          "locationAlwaysAndWhenInUsePermission": "Allow Phantom to use your location in the background only while you enable tracking, so your latest position stays current.",
           "locationWhenInUsePermission": "Allow Phantom to use your location to center the map and show your position."
         }
       ]

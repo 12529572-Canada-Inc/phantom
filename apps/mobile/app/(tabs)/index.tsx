@@ -1,9 +1,12 @@
 import { useRef } from 'react'
-import { Pressable, StyleSheet, Text, View } from 'react-native'
+import { Linking, Pressable, StyleSheet, Text, View } from 'react-native'
 import MapView, { Marker, type Region } from 'react-native-maps'
 
+import { LocationTrackingControl } from '../../components/map/LocationTrackingControl'
 import { MapHud } from '../../components/map/MapHud'
 import { MapStatusView } from '../../components/map/MapStatusView'
+import { useAuth } from '../../src/auth/auth-context'
+import { usePlayerLocationTracking } from '../../src/location/use-player-location-tracking'
 import { cosmicMapStyle } from '../../src/map/cosmic-map-style'
 import type { MapCoordinates } from '../../src/map/map-location'
 import { useMapLocation } from '../../src/map/use-map-location'
@@ -20,7 +23,9 @@ function toPlayerRegion(coordinates: MapCoordinates): Region {
 
 export default function MapScreen() {
   const mapRef = useRef<MapView>(null)
+  const { session } = useAuth()
   const { requestLocation, state: locationState } = useMapLocation()
+  const locationTracking = usePlayerLocationTracking(session?.user.id ?? null)
 
   function recenterMap() {
     if (locationState.status !== 'ready') return
@@ -64,7 +69,14 @@ export default function MapScreen() {
         />
       )}
 
-      <MapHud signalLocked={locationState.status === 'ready'} />
+      <MapHud signalLocked={locationState.status === 'ready'}>
+        <LocationTrackingControl
+          onDisable={() => void locationTracking.disable()}
+          onEnable={() => void locationTracking.enable()}
+          onOpenSettings={() => void Linking.openSettings()}
+          status={locationTracking.status}
+        />
+      </MapHud>
 
       {locationState.status === 'ready' ? (
         <Pressable
